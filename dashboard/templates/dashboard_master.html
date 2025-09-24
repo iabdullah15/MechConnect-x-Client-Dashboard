@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Master Dashboard{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h1 class="h4 mb-3">Master Dashboard</h1>
+    <form method="get" class="row g-3 align-items-center">
+      <div class="col-auto">
+        <label for="org" class="col-form-label">Organization</label>
+      </div>
+      <div class="col-auto">
+        <select id="org" name="org" class="form-select" onchange="this.form.submit()">
+          {% for o in orgs %}
+            <option value="{{ o.slug }}" {% if org and org.slug == o.slug %}selected{% endif %}>{{ o.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if org %}
+  {% include "dashboard_client_body.html" with org=org %}
+{% else %}
+  <div class="alert alert-secondary">No organizations yet.</div>
+{% endif %}
+{% endblock %}

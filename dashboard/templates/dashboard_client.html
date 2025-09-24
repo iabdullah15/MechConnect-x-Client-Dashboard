@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}{{ org.name }} — Dashboard{% endblock %}
+{% block content %}
+  {% include "dashboard_client_body.html" with org=org %}
+{% endblock %}
