@@ -4,6 +4,26 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .models import Organization
 
+# --- NEW: Home page view ---
+def home(request):
+    """
+    - If not authenticated: show a friendly welcome + Login button.
+    - If authenticated:
+        * MASTER (or superuser): show link to Master Dashboard and links to all client dashboards.
+        * CLIENT: show link to their own client dashboard only.
+    """
+    user = request.user
+    context = {"is_authenticated": user.is_authenticated, "is_master": False, "orgs": [], "client_org": None}
+
+    if user.is_authenticated:
+        if hasattr(user, "is_master") and user.is_master():
+            context["is_master"] = True
+            context["orgs"] = list(Organization.objects.all().order_by("name"))
+        else:
+            context["client_org"] = user.organization  # may be None if not assigned
+
+    return render(request, "home.html", context)
+
 class RoleAwareLoginView(LoginView):
     template_name = "login.html"
 

@@ -1,0 +1,275 @@
+{# --- Client Metrics (UI only, no data wired yet) --- #}
+<style>
+  :root {
+    --mc-primary: #007CC2;
+    --mc-gray: #E8E8E8;
+    --mc-bg: #F5F5F5;
+  }
+  /* Keep Plotly transparent inside white cards */
+  .mc-card.card { background: #fff; }
+  .plot-card .card-body { padding: 1rem 1rem 0.5rem 1rem; }
+</style>
+
+{# ---------------- Top Diagnosed Vehicles ---------------- #}
+<h3 class="h6 mt-4 mb-2">Top Diagnosed Vehicles</h3>
+<div class="row g-3">
+  <div class="col-12 col-lg-6">
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="h6 mb-0">Top Car Makes Diagnosed</h4>
+          <select id="makes-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="90d">Last 90 days</option>
+            <option value="all" selected>All time</option>
+          </select>
+        </div>
+        <div id="top-makes-chart" style="height:360px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="h6 mb-0">Top 5 Car Models Diagnosed</h4>
+          <select id="models-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="90d">Last 90 days</option>
+            <option value="all" selected>All time</option>
+          </select>
+        </div>
+        <div id="top-models-chart" style="height:360px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ---------------- Common Issues and Parts ---------------- #}
+<h3 class="h6 mt-4 mb-2">Common Issues and Parts</h3>
+<div class="row g-3">
+  <div class="col-12 col-lg-6">
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="h6 mb-0">Top 5 Diagnosed Issues</h4>
+          <select id="issues-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="90d">Last 90 days</option>
+            <option value="all" selected>All time</option>
+          </select>
+        </div>
+        <div id="top-issues-chart" style="height:360px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="h6 mb-0">Top Selling Parts (Most Clicked)</h4>
+          <select id="parts-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="90d">Last 90 days</option>
+            <option value="all" selected>All time</option>
+          </select>
+        </div>
+        <div id="top-parts-chart" style="height:360px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ---------------- Diagnostic Behavior ---------------- #}
+<h3 class="h6 mt-4 mb-2">Diagnostic Behavior</h3>
+<div class="row g-3">
+  <div class="col-12 col-lg-4">
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="h6 mb-0">Avg. Steps/Questions per Diagnosis</h4>
+          <select id="steps-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
+            <option value="7d" selected>Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="90d">Last 90 days</option>
+            <option value="all">All time</option>
+          </select>
+        </div>
+        <div id="avg-steps-chart" style="height:360px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="h6 mb-0">Diagnostic Session Completion Rate</h4>
+          <select id="completion-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="90d">Last 90 days</option>
+            <option value="all" selected>All time</option>
+          </select>
+        </div>
+        <div id="completion-rate-chart" style="height:360px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="card mc-card shadow-sm text-center" style="height: 420px;">
+      <div class="card-body d-flex align-items-center justify-content-center">
+        <div class="text-muted fst-italic">Coming Soon</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ---------------- Avg. Diagnosis Time (full width) ---------------- #}
+<div class="card mc-card shadow-sm mt-4 plot-card">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h4 class="h6 mb-0">Avg. Diagnosis Time</h4>
+      <select id="time-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
+        <option value="7d">Last 7 days</option>
+        <option value="30d">Last 30 days</option>
+        <option value="90d">Last 90 days</option>
+        <option value="all" selected>All time</option>
+      </select>
+    </div>
+    <div id="avg-diagnosis-time-chart" style="height:360px;"></div>
+  </div>
+</div>
+
+{# ---------------- Temporal Metrics ---------------- #}
+<h3 class="h6 mt-4 mb-2">Temporal Metrics</h3>
+<div class="row g-3">
+  <div class="col-12 col-lg-6">
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <h4 class="h6 mb-2">Hourly/Daily Active Users</h4>
+        <div id="hourly-active-chart" style="height:360px;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-6">
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <h4 class="h6 mb-2">Most Active Days of the Week</h4>
+        <div id="weekday-active-chart" style="height:360px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- Shared style for Plotly ----
+  const MC_PRIMARY = '#007CC2';
+  const MC_GRAY = '#E8E8E8';
+  const baseLayout = {
+    margin: {l: 40, r: 20, t: 20, b: 40},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {family: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif'}
+  };
+
+  // Dummy data sets
+  const dummyMakes = {
+    x: [120, 95, 80, 60, 45],
+    y: ["Toyota", "Volkswagen", "Ford", "BMW", "Mercedes"]
+  };
+  const dummyModels = {
+    x: [100, 88, 70, 55, 42],
+    y: ["Corolla", "Golf", "F-150", "3 Series", "C-Class"]
+  };
+  const dummyIssues = {
+    x: [140, 110, 90, 75, 50],
+    y: ["Battery", "Brakes", "Transmission", "Engine Oil", "Suspension"]
+  };
+  const dummyParts = {
+    x: [200, 180, 150, 120, 90],
+    y: ["Brake Pads", "Air Filter", "Alternator", "Spark Plugs", "Radiator"]
+  };
+  const dummySteps = {
+    x: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+    y: [8, 7, 9, 6, 8, 7, 10]
+  };
+  const dummyCompletion = {
+    x: ["Completed","Incomplete"],
+    y: [85, 15]
+  };
+  const dummyDiagnosisTime = {
+    x: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+    y: [12, 11, 15, 14, 13, 16, 10]
+  };
+  const dummyHourlyActive = {
+    x: Array.from({length: 24}, (_,i)=>`${i}:00`),
+    y: Array.from({length: 24}, ()=>Math.floor(Math.random()*50)+10)
+  };
+  const dummyWeekdayActive = {
+    x: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+    y: [120, 140, 160, 180, 200, 170, 150]
+  };
+
+  // Render charts with dummy data
+  Plotly.newPlot("top-makes-chart", [{
+    x: dummyMakes.x, y: dummyMakes.y,
+    type: "bar", orientation: "h",
+    marker: {color: MC_PRIMARY}
+  }], {...baseLayout, height: 360, yaxis:{autorange:"reversed"}});
+
+  Plotly.newPlot("top-models-chart", [{
+    x: dummyModels.x, y: dummyModels.y,
+    type: "bar", orientation: "h",
+    marker: {color: MC_PRIMARY}
+  }], {...baseLayout, height: 360, yaxis:{autorange:"reversed"}});
+
+  Plotly.newPlot("top-issues-chart", [{
+    x: dummyIssues.x, y: dummyIssues.y,
+    type: "bar", orientation: "h",
+    marker: {color: MC_PRIMARY}
+  }], {...baseLayout, height: 360, yaxis:{autorange:"reversed"}});
+
+  Plotly.newPlot("top-parts-chart", [{
+    x: dummyParts.x, y: dummyParts.y,
+    type: "bar", orientation: "h",
+    marker: {color: MC_PRIMARY}
+  }], {...baseLayout, height: 360, yaxis:{autorange:"reversed"}});
+
+  Plotly.newPlot("avg-steps-chart", [{
+    x: dummySteps.x, y: dummySteps.y,
+    type: "scatter", mode:"lines+markers",
+    line: {color: MC_PRIMARY}, marker:{size:6}
+  }], {...baseLayout, height:360});
+
+  Plotly.newPlot("completion-rate-chart", [{
+    labels: dummyCompletion.x,
+    values: dummyCompletion.y,
+    type: "pie",
+    marker: {colors:[MC_PRIMARY, MC_GRAY]}
+  }], {...baseLayout, height:360});
+
+  Plotly.newPlot("avg-diagnosis-time-chart", [{
+    x: dummyDiagnosisTime.x, y: dummyDiagnosisTime.y,
+    type: "scatter", mode:"lines+markers",
+    line: {color: MC_PRIMARY, shape:"spline"}, marker:{size:6}
+  }], {...baseLayout, height:360});
+
+  Plotly.newPlot("hourly-active-chart", [{
+    x: dummyHourlyActive.x, y: dummyHourlyActive.y,
+    type:"scatter", mode:"lines+markers",
+    line:{color:MC_PRIMARY}, marker:{size:4}
+  }], {...baseLayout, height:360});
+
+  Plotly.newPlot("weekday-active-chart", [{
+    x: dummyWeekdayActive.x, y: dummyWeekdayActive.y,
+    type:"bar", marker:{color:MC_PRIMARY}
+  }], {...baseLayout, height:360});
+</script>

@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import (
+    home,
     RoleAwareLoginView, role_router,
     master_dashboard, client_dashboard,
 )
@@ -7,6 +8,7 @@ from django.contrib.auth.views import LogoutView
 
 
 urlpatterns = [
+    path("", home, name="home"),   # <-- add home at root
     path("login/",  RoleAwareLoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(next_page="login"), name="logout"),  # <— change here
 
