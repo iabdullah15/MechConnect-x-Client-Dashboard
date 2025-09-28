@@ -1,275 +1,319 @@
-{# --- Client Metrics (UI only, no data wired yet) --- #}
+{# --- Client Metrics (Lott.de v1) --- #}
 <style>
   :root {
     --mc-primary: #007CC2;
+    --mc-primary-light: #66B8E6;
     --mc-gray: #E8E8E8;
     --mc-bg: #F5F5F5;
   }
-  /* Keep Plotly transparent inside white cards */
   .mc-card.card { background: #fff; }
   .plot-card .card-body { padding: 1rem 1rem 0.5rem 1rem; }
+  .activity-item + .activity-item { border-top: 1px solid #eee; }
+  .badge-type { text-transform: capitalize; }
 </style>
 
-{# ---------------- Top Diagnosed Vehicles ---------------- #}
-<h3 class="h6 mt-4 mb-2">Top Diagnosed Vehicles</h3>
+<!-- Row 1 -->
 <div class="row g-3">
   <div class="col-12 col-lg-6">
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Top Car Makes Diagnosed</h4>
-          <select id="makes-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all" selected>All time</option>
-          </select>
-        </div>
-        <div id="top-makes-chart" style="height:360px;"></div>
+        <h4 class="h6 mb-2">User Growth (Last 5 Months)</h4>
+        <div id="lott-user-growth" style="height:360px;"></div>
       </div>
     </div>
   </div>
-
   <div class="col-12 col-lg-6">
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Top 5 Car Models Diagnosed</h4>
-          <select id="models-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all" selected>All time</option>
-          </select>
-        </div>
-        <div id="top-models-chart" style="height:360px;"></div>
+        <h4 class="h6 mb-2">Car Part Verifications (Last 5 Months)</h4>
+        <div id="lott-verifications" style="height:360px;"></div>
       </div>
     </div>
   </div>
 </div>
 
-{# ---------------- Common Issues and Parts ---------------- #}
-<h3 class="h6 mt-4 mb-2">Common Issues and Parts</h3>
-<div class="row g-3">
+<!-- Row 2 -->
+<div class="row g-3 mt-1">
   <div class="col-12 col-lg-6">
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Top 5 Diagnosed Issues</h4>
-          <select id="issues-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all" selected>All time</option>
-          </select>
-        </div>
-        <div id="top-issues-chart" style="height:360px;"></div>
+        <h4 class="h6 mb-2">Support Queries (Last 5 Months)</h4>
+        <div id="lott-support" style="height:360px;"></div>
       </div>
     </div>
   </div>
-
   <div class="col-12 col-lg-6">
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Top Selling Parts (Most Clicked)</h4>
-          <select id="parts-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all" selected>All time</option>
-          </select>
-        </div>
-        <div id="top-parts-chart" style="height:360px;"></div>
+        <h4 class="h6 mb-2">Chat Threads (Last 5 Months)</h4>
+        <div id="lott-chat-threads" style="height:360px;"></div>
       </div>
     </div>
   </div>
 </div>
 
-{# ---------------- Diagnostic Behavior ---------------- #}
-<h3 class="h6 mt-4 mb-2">Diagnostic Behavior</h3>
-<div class="row g-3">
-  <div class="col-12 col-lg-4">
+<!-- Row 3 -->
+<div class="row g-3 mt-1">
+  <div class="col-12 col-lg-6">
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Avg. Steps/Questions per Diagnosis</h4>
-          <select id="steps-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-            <option value="7d" selected>Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all">All time</option>
+          <h4 class="h6 mb-0">Most Active Days</h4>
+          <select id="mad-period" class="form-select form-select-sm" style="max-width:160px">
+            <option value="all" selected>All day (0–23)</option>
+            <option value="am">Morning (0–11)</option>
+            <option value="pm">Afternoon/Evening (12–23)</option>
           </select>
         </div>
-        <div id="avg-steps-chart" style="height:360px;"></div>
+        <div id="most-active-days" style="height:360px;"></div>
       </div>
     </div>
   </div>
 
-  <div class="col-12 col-lg-4">
+  <div class="col-12 col-lg-6">
+    <div class="card mc-card shadow-sm">
+      <div class="card-body">
+        <h4 class="h6 mb-2">Recent Activities</h4>
+        <div id="recent-activities">
+          <div class="text-muted fst-italic">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Row 4 -->
+<div class="row g-3 mt-1">
+  <div class="col-12 col-lg-6">
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Diagnostic Session Completion Rate</h4>
-          <select id="completion-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
+          <h4 class="h6 mb-0">Most Active Hours</h4>
+          <select id="mah-period" class="form-select form-select-sm" style="max-width:160px">
+            <option value="all" selected>All day (0–23)</option>
+            <option value="am">Morning (0–11)</option>
+            <option value="pm">Afternoon/Evening (12–23)</option>
+          </select>
+        </div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge text-bg-primary">Total Distinct Users: <span id="mah-total">0</span></span>
+        </div>
+        <div id="most-active-hours" style="height:360px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card mc-card shadow-sm plot-card mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="h6 mb-0">Top 5 Makes Diagnosed</h4>
+          <select id="topcars-range" class="form-select form-select-sm" style="max-width:160px">
+            <option value="" selected>All time</option>
             <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all" selected>All time</option>
+            <option value="1m">Last 1 month</option>
+            <option value="1y">Last 1 year</option>
           </select>
         </div>
-        <div id="completion-rate-chart" style="height:360px;"></div>
+        <div id="top-makes" style="height:240px;"></div>
       </div>
     </div>
-  </div>
 
-  <div class="col-12 col-lg-4">
-    <div class="card mc-card shadow-sm text-center" style="height: 420px;">
-      <div class="card-body d-flex align-items-center justify-content-center">
-        <div class="text-muted fst-italic">Coming Soon</div>
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <h4 class="h6 mb-2">Top 5 Models Diagnosed</h4>
+        <div id="top-models" style="height:260px;"></div>
       </div>
     </div>
   </div>
 </div>
 
-{# ---------------- Avg. Diagnosis Time (full width) ---------------- #}
-<div class="card mc-card shadow-sm mt-4 plot-card">
-  <div class="card-body">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <h4 class="h6 mb-0">Avg. Diagnosis Time</h4>
-      <select id="time-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-        <option value="7d">Last 7 days</option>
-        <option value="30d">Last 30 days</option>
-        <option value="90d">Last 90 days</option>
-        <option value="all" selected>All time</option>
-      </select>
-    </div>
-    <div id="avg-diagnosis-time-chart" style="height:360px;"></div>
-  </div>
-</div>
-
-{# ---------------- Temporal Metrics ---------------- #}
-<h3 class="h6 mt-4 mb-2">Temporal Metrics</h3>
+<!-- Row 5: Parts Interactions -->
+<h3 class="h6 mt-4 mb-2">Parts Interactions</h3>
 <div class="row g-3">
   <div class="col-12 col-lg-6">
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
-        <h4 class="h6 mb-2">Hourly/Daily Active Users</h4>
-        <div id="hourly-active-chart" style="height:360px;"></div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="h6 mb-0">Related Parts Click Rate</h4>
+          <select id="rpcr-granularity" class="form-select form-select-sm" style="max-width: 180px">
+            <option value="hourly">Hourly</option>
+            <option value="daily" selected>Daily (last 5)</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
+        <div id="related-parts-click-rate" style="height:360px;"></div>
       </div>
     </div>
   </div>
+
   <div class="col-12 col-lg-6">
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
-        <h4 class="h6 mb-2">Most Active Days of the Week</h4>
-        <div id="weekday-active-chart" style="height:360px;"></div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="h6 mb-0">Verified vs Rejected Parts</h4>
+        </div>
+        <div id="parts-stats-donut" style="height:360px;"></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  // ---- Shared style for Plotly ----
   const MC_PRIMARY = '#007CC2';
-  const MC_GRAY = '#E8E8E8';
+  const MC_PRIMARY_LIGHT = '#66B8E6';
+
   const baseLayout = {
-    margin: {l: 40, r: 20, t: 20, b: 40},
+    margin: { l: 40, r: 20, t: 20, b: 40 },
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
-    font: {family: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif'}
+    font: { family: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif' }
   };
 
-  // Dummy data sets
-  const dummyMakes = {
-    x: [120, 95, 80, 60, 45],
-    y: ["Toyota", "Volkswagen", "Ford", "BMW", "Mercedes"]
-  };
-  const dummyModels = {
-    x: [100, 88, 70, 55, 42],
-    y: ["Corolla", "Golf", "F-150", "3 Series", "C-Class"]
-  };
-  const dummyIssues = {
-    x: [140, 110, 90, 75, 50],
-    y: ["Battery", "Brakes", "Transmission", "Engine Oil", "Suspension"]
-  };
-  const dummyParts = {
-    x: [200, 180, 150, 120, 90],
-    y: ["Brake Pads", "Air Filter", "Alternator", "Spark Plugs", "Radiator"]
-  };
-  const dummySteps = {
-    x: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-    y: [8, 7, 9, 6, 8, 7, 10]
-  };
-  const dummyCompletion = {
-    x: ["Completed","Incomplete"],
-    y: [85, 15]
-  };
-  const dummyDiagnosisTime = {
-    x: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-    y: [12, 11, 15, 14, 13, 16, 10]
-  };
-  const dummyHourlyActive = {
-    x: Array.from({length: 24}, (_,i)=>`${i}:00`),
-    y: Array.from({length: 24}, ()=>Math.floor(Math.random()*50)+10)
-  };
-  const dummyWeekdayActive = {
-    x: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-    y: [120, 140, 160, 180, 200, 170, 150]
-  };
+  function unwrap(data) {
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    if (data.payload && Array.isArray(data.payload)) return data.payload;
+    return [];
+  }
 
-  // Render charts with dummy data
-  Plotly.newPlot("top-makes-chart", [{
-    x: dummyMakes.x, y: dummyMakes.y,
-    type: "bar", orientation: "h",
-    marker: {color: MC_PRIMARY}
-  }], {...baseLayout, height: 360, yaxis:{autorange:"reversed"}});
+  function toSeries(payload) {
+    const arr = unwrap(payload);
+    return { months: arr.map(p => p.month), totals: arr.map(p => p.total) };
+  }
 
-  Plotly.newPlot("top-models-chart", [{
-    x: dummyModels.x, y: dummyModels.y,
-    type: "bar", orientation: "h",
-    marker: {color: MC_PRIMARY}
-  }], {...baseLayout, height: 360, yaxis:{autorange:"reversed"}});
+  function renderLine(divId, months, totals, color, yTitle) {
+    if (!document.getElementById(divId)) return;
+    Plotly.react(divId, [{
+      x: months, y: totals, type: 'scatter', mode: 'lines+markers',
+      line: { color, shape: 'spline' }, marker: { size: 6 }
+    }], {
+      ...baseLayout, height: 360, xaxis: { title: 'Month' }, yaxis: { title: yTitle, rangemode: 'tozero' }
+    }, { displayModeBar: false, responsive: true });
+  }
 
-  Plotly.newPlot("top-issues-chart", [{
-    x: dummyIssues.x, y: dummyIssues.y,
-    type: "bar", orientation: "h",
-    marker: {color: MC_PRIMARY}
-  }], {...baseLayout, height: 360, yaxis:{autorange:"reversed"}});
+  function renderUserGrowth(data){ const s=toSeries(data); renderLine('lott-user-growth', s.months, s.totals, MC_PRIMARY_LIGHT, 'Users'); }
+  function renderVerifications(data){ const s=toSeries(data); renderLine('lott-verifications', s.months, s.totals, MC_PRIMARY, 'Verifications'); }
+  function renderSupport(data){ const s=toSeries(data); renderLine('lott-support', s.months, s.totals, MC_PRIMARY, 'Support Queries'); }
+  function renderChatThreads(data){ const s=toSeries(data); renderLine('lott-chat-threads', s.months, s.totals, MC_PRIMARY_LIGHT, 'Chat Threads'); }
 
-  Plotly.newPlot("top-parts-chart", [{
-    x: dummyParts.x, y: dummyParts.y,
-    type: "bar", orientation: "h",
-    marker: {color: MC_PRIMARY}
-  }], {...baseLayout, height: 360, yaxis:{autorange:"reversed"}});
+  function renderMostActiveDays(payload) {
+    const arr = unwrap(payload);
+    Plotly.react('most-active-days', [
+      { x: arr.map(p=>p.dayOfWeek), y: arr.map(p=>p.distinctUsers), type: 'bar', name: 'Distinct Users', marker: { color: MC_PRIMARY_LIGHT } },
+      { x: arr.map(p=>p.dayOfWeek), y: arr.map(p=>p.totalConversations), type: 'bar', name: 'Total Conversations', marker: { color: MC_PRIMARY } }
+    ], { ...baseLayout, height: 360, barmode: 'group', xaxis: { title: 'Day of Week' }, yaxis: { title: 'Count', rangemode: 'tozero' }, legend: { orientation: 'h', x: 0, y: 1.2 } }, { displayModeBar: false, responsive: true });
+  }
 
-  Plotly.newPlot("avg-steps-chart", [{
-    x: dummySteps.x, y: dummySteps.y,
-    type: "scatter", mode:"lines+markers",
-    line: {color: MC_PRIMARY}, marker:{size:6}
-  }], {...baseLayout, height:360});
+  function badgeForType(t){ t=(t||'').toLowerCase(); if(t.includes('chat'))return'primary'; if(t.includes('support'))return'warning'; if(t.includes('license'))return'success'; if(t.includes('carpart'))return'info'; return'secondary'; }
+  function safe(obj, path, fallback=''){ try{ return path.split('.').reduce((o,k)=>(o&&o[k]!==undefined?o[k]:undefined), obj) ?? fallback; }catch(_){ return fallback; } }
+  function formatDate(iso){ if(!iso) return ''; const d=new Date(iso); if(isNaN(d.getTime())) return ''; return d.toLocaleString(); }
 
-  Plotly.newPlot("completion-rate-chart", [{
-    labels: dummyCompletion.x,
-    values: dummyCompletion.y,
-    type: "pie",
-    marker: {colors:[MC_PRIMARY, MC_GRAY]}
-  }], {...baseLayout, height:360});
+  function renderRecentActivities(list) {
+    const wrap = document.getElementById('recent-activities');
+    if (!wrap) return;
+    const arr = unwrap(list);
+    wrap.innerHTML = '';
+    if (!arr.length){ wrap.innerHTML='<div class="text-muted fst-italic">No recent activity.</div>'; return; }
+    arr.forEach(item=>{
+      const el=document.createElement('div');
+      el.className='activity-item py-2';
+      el.innerHTML=`
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <span class="badge bg-${badgeForType(item.type)} badge-type me-2">${item.type||'Activity'}</span>
+            <span class="fw-semibold">${item.message||''}</span>
+          </div>
+          ${safe(item,'data.licenseKey.name','') ? `<span class="text-muted small">Key: ${safe(item,'data.licenseKey.name','')}</span>` : ''}
+        </div>
+        <div class="text-muted small mt-1">${formatDate(safe(item,'data.createdAt','')||safe(item,'createdAt',''))}</div>`;
+      wrap.appendChild(el);
+    });
+  }
 
-  Plotly.newPlot("avg-diagnosis-time-chart", [{
-    x: dummyDiagnosisTime.x, y: dummyDiagnosisTime.y,
-    type: "scatter", mode:"lines+markers",
-    line: {color: MC_PRIMARY, shape:"spline"}, marker:{size:6}
-  }], {...baseLayout, height:360});
+  function renderMostActiveHours(data){
+    const perHour = (data && data.perHour) ? data.perHour : Array.from({length:24},(_,h)=>({hour:h,distinctUsers:0}));
+    const totalEl = document.getElementById('mah-total');
+    if (totalEl) totalEl.textContent = (data && typeof data.totalDistinctUsers === 'number') ? data.totalDistinctUsers : 0;
+    Plotly.react('most-active-hours', [{
+      x: perHour.map(p=>p.hour), y: perHour.map(p=>p.distinctUsers),
+      type:'scatter', mode:'lines+markers', line:{color:MC_PRIMARY, shape:'spline'}, marker:{size:5}
+    }], { ...baseLayout, height:360, xaxis:{title:'Hour of Day (0–23)', dtick:1}, yaxis:{title:'Distinct Users', rangemode:'tozero'} }, { displayModeBar:false, responsive:true });
+  }
 
-  Plotly.newPlot("hourly-active-chart", [{
-    x: dummyHourlyActive.x, y: dummyHourlyActive.y,
-    type:"scatter", mode:"lines+markers",
-    line:{color:MC_PRIMARY}, marker:{size:4}
-  }], {...baseLayout, height:360});
+  function renderTopCarDiagnoses(data){
+    const makes=(data&&data.top5Makes)||[], models=(data&&data.top5Models)||[];
+    Plotly.react('top-makes', [{ x:makes.map(m=>m.count), y:makes.map(m=>m.make), type:'bar', orientation:'h', marker:{color:MC_PRIMARY} }], { ...baseLayout, height:240, yaxis:{autorange:'reversed'}, xaxis:{title:'Count', rangemode:'tozero'} }, { displayModeBar:false, responsive:true });
+    Plotly.react('top-models', [{ x:models.map(m=>m.count), y:models.map(m=>m.model), type:'bar', orientation:'h', marker:{color:MC_PRIMARY_LIGHT} }], { ...baseLayout, height:260, yaxis:{autorange:'reversed'}, xaxis:{title:'Count', rangemode:'tozero'} }, { displayModeBar:false, responsive:true });
+  }
 
-  Plotly.newPlot("weekday-active-chart", [{
-    x: dummyWeekdayActive.x, y: dummyWeekdayActive.y,
-    type:"bar", marker:{color:MC_PRIMARY}
-  }], {...baseLayout, height:360});
+  function renderRelatedPartsClickRate(data){
+    const arr = unwrap(data);
+    Plotly.react('related-parts-click-rate', [{
+      x: arr.map(p=>p.date ?? p.hour ?? p.week ?? p._id ?? ''),
+      y: arr.map(p=> typeof p.clickRate==='number' ? p.clickRate : 0),
+      type:'scatter', mode:'lines+markers', line:{color:MC_PRIMARY, shape:'spline'}, marker:{size:6},
+      hovertemplate:'Rate: %{y:.1f}%<extra></extra>'
+    }], { ...baseLayout, height:360, xaxis:{title:'Period'}, yaxis:{title:'Click Rate (%)', rangemode:'tozero', range:[0,100]} }, { displayModeBar:false, responsive:true });
+  }
+
+  function renderPartsStatsDonut(data){
+    const arr = unwrap(data);
+    Plotly.react('parts-stats-donut', [{
+      type:'pie', hole:0.55, labels:arr.map(p=>p.label), values:arr.map(p=>p.count),
+      marker:{ colors:[MC_PRIMARY, MC_PRIMARY_LIGHT, '#E8E8E8'] }, textinfo:'label+value',
+      hovertemplate:'%{label}: %{value}<extra></extra>', sort:false
+    }], { ...baseLayout, height:360, showlegend:true }, { displayModeBar:false, responsive:true });
+  }
+
+  async function loadClientMetrics(extraParams=''){
+    try {
+      const url = "{% url 'api_client_metrics' %}" + (extraParams ? ("?" + extraParams) : "");
+      const res = await fetch(url, { credentials:'same-origin' });
+      const j = await res.json();
+      if (j.ok && j.data){
+        renderUserGrowth(j.data.user_chart);
+        renderVerifications(j.data.verify_chart);
+        renderSupport(j.data.support_chart);
+        renderChatThreads(j.data.chat_thread_chart);
+        renderMostActiveDays(j.data.most_active_days);
+        renderRecentActivities(j.data.recent_activities);
+        renderMostActiveHours(j.data.most_active_hours);
+        renderTopCarDiagnoses(j.data.top_car_diagnoses);
+        renderRelatedPartsClickRate(j.data.related_parts_click_rate);
+        renderPartsStatsDonut(j.data.parts_stats);
+      } else {
+        renderUserGrowth([]); renderVerifications([]); renderSupport([]); renderChatThreads([]);
+        renderMostActiveDays([]); renderRecentActivities([]);
+        renderMostActiveHours({period:'all', totalDistinctUsers:0, perHour:Array.from({length:24},(_,h)=>({hour:h,distinctUsers:0}))});
+        renderTopCarDiagnoses({top5Makes:[], top5Models:[]});
+        renderRelatedPartsClickRate([]); renderPartsStatsDonut([]);
+      }
+    } catch {
+      renderUserGrowth([]); renderVerifications([]); renderSupport([]); renderChatThreads([]);
+      renderMostActiveDays([]); renderRecentActivities([]);
+      renderMostActiveHours({period:'all', totalDistinctUsers:0, perHour:Array.from({length:24},(_,h)=>({hour:h,distinctUsers:0}))});
+      renderTopCarDiagnoses({top5Makes:[], top5Models:[]});
+      renderRelatedPartsClickRate([]); renderPartsStatsDonut([]);
+    }
+  }
+
+  function buildQS(){
+    const qs = new URLSearchParams();
+    const periodMAD = document.getElementById('mad-period')?.value || 'all';
+    const periodMAH = document.getElementById('mah-period')?.value || periodMAD || 'all';
+    const dateRange = document.getElementById('topcars-range')?.value || '';
+    const gran      = document.getElementById('rpcr-granularity')?.value || 'daily';
+    if (periodMAH) qs.set('period', periodMAH);
+    if (dateRange) qs.set('dateRange', dateRange);
+    if (gran) qs.set('granularity', gran);
+    return qs.toString();
+  }
+
+  loadClientMetrics();
+
+  document.getElementById('mad-period')?.addEventListener('change', ()=>loadClientMetrics(buildQS()));
+  document.getElementById('mah-period')?.addEventListener('change', ()=>loadClientMetrics(buildQS()));
+  document.getElementById('topcars-range')?.addEventListener('change', ()=>loadClientMetrics(buildQS()));
+  document.getElementById('rpcr-granularity')?.addEventListener('change', ()=>loadClientMetrics(buildQS()));
 </script>

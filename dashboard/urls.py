@@ -3,6 +3,8 @@ from .views import (
     home,
     RoleAwareLoginView, role_router,
     master_dashboard, client_dashboard,
+    api_license_keys_summary,
+    api_client_metrics,
 )
 from django.contrib.auth.views import LogoutView
 
@@ -19,4 +21,9 @@ urlpatterns = [
     # dashboards
     path("dash/master/", master_dashboard, name="master_dashboard"),
     path("dash/<slug:org_slug>/", client_dashboard, name="client_dashboard"),
+    
+     # ---- API (master only) ----
+    path("api/admin/license-keys/summary", api_license_keys_summary, name="api_license_keys_summary"),
+        # Client metrics (org-agnostic v1: Lott.de)
+    path("api/client/metrics", api_client_metrics, name="api_client_metrics"),
 ]

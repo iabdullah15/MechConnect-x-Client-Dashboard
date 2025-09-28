@@ -1,9 +1,9 @@
-{# --- Master metrics UI, UI-only (no data wiring yet) --- #}
+{# --- Master metrics UI --- #}
 <style>
   :root {
-    --mc-primary: #007CC2;
-    --mc-gray: #E8E8E8;
-    --mc-bg: #F5F5F5;
+    --mc-primary: #007cc2;
+    --mc-gray: #e8e8e8;
+    --mc-bg: #f5f5f5;
   }
   body.bg-light { background-color: var(--mc-bg) !important; }
 
@@ -20,7 +20,7 @@
   .mc-card.card { background: #fff; }
 
   /* Keep Plotly on transparent bg to match cards */
-  .plot-card .card-body { padding: 1rem 1rem 0.5rem 1rem; }
+  .plot-card .card-body { padding: 1rem 1rem .5rem 1rem; }
 </style>
 
 <div class="kpi-banner mb-4">
@@ -35,168 +35,80 @@
   </div>
 </div>
 
-{# ---------------- Top Diagnosed Vehicles ---------------- #}
-<h3 class="h5 mb-3">Top Diagnosed Vehicles</h3>
+{# ====================== Authentication & License Key Health ====================== #}
+<h3 class="h5 mt-4 mb-3">Authentication &amp; License Key Health</h3>
 <div class="row g-3">
+  <!-- LEFT: License Keys Overview (Donut) -->
   <div class="col-12 col-lg-6">
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Top Car Makes Diagnosed</h4>
-          <select id="makes-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all" selected>All time</option>
-          </select>
+          <h4 class="h6 mb-0">License Keys Overview</h4>
         </div>
-        <div id="top-makes-chart" style="height:360px;"></div>
+        <div id="license-keys-donut" style="height:360px;"></div>
+        <div class="row text-center my-2">
+          <div class="col">
+            <div class="fw-semibold" id="lk-new">0</div>
+            <div class="text-muted small">New License Keys</div>
+          </div>
+          <div class="col">
+            <div class="fw-semibold" id="lk-active">0</div>
+            <div class="text-muted small">Active License Keys</div>
+          </div>
+          <div class="col">
+            <div class="fw-semibold" id="lk-inactive">0</div>
+            <div class="text-muted small">Inactive License Keys</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- RIGHT: License Key Failures (by type) -->
   <div class="col-12 col-lg-6">
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Top 5 Car Models Diagnosed</h4>
-          <select id="models-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all" selected>All time</option>
-          </select>
+          <h4 class="h6 mb-0">License Key Failures (by Type)</h4>
         </div>
-        <div id="top-models-chart" style="height:360px;"></div>
+        <div id="license-failures-bar" style="height:360px;"></div>
       </div>
     </div>
   </div>
 </div>
 
-{# ---------------- Common Issues and Parts ---------------- #}
-<h3 class="h5 mt-4 mb-3">Common Issues and Parts</h3>
+{# ====================== Chat-Level Engagement ====================== #}
+<h3 class="h5 mt-4 mb-3">Chat-Level Engagement</h3>
 <div class="row g-3">
+  <!-- Avg. Chat Length (last 6 months, line) -->
   <div class="col-12 col-lg-6">
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Top 5 Diagnosed Issues</h4>
-          <select id="issues-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all" selected>All time</option>
-          </select>
+          <h4 class="h6 mb-0">Avg. Chat Length (# of Messages)</h4>
         </div>
-        <div id="top-issues-chart" style="height:360px;"></div>
+        <div id="avg-chat-length-hist" style="height:360px;"></div>
       </div>
     </div>
   </div>
 
+  <!-- Chat Drop-Off Points (Funnel) -->
   <div class="col-12 col-lg-6">
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Top Selling Parts (Most Clicked)</h4>
-          <select id="parts-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all" selected>All time</option>
-          </select>
+          <h4 class="h6 mb-0">Chat Drop-Off Points</h4>
         </div>
-        <div id="top-parts-chart" style="height:360px;"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-{# ---------------- Diagnostic Behavior ---------------- #}
-<h3 class="h5 mt-4 mb-3">Diagnostic Behavior</h3>
-<div class="row g-3">
-  <div class="col-12 col-lg-4">
-    <div class="card mc-card shadow-sm plot-card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Avg. Steps/Questions per Diagnosis</h4>
-          <select id="steps-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-            <option value="7d" selected>Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all">All time</option>
-          </select>
-        </div>
-        <div id="avg-steps-chart" style="height:360px;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-12 col-lg-4">
-    <div class="card mc-card shadow-sm plot-card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Diagnostic Session Completion Rate</h4>
-          <select id="completion-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all" selected>All time</option>
-          </select>
-        </div>
-        <div id="completion-rate-chart" style="height:360px;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-12 col-lg-4">
-    <div class="card mc-card shadow-sm text-center" style="height: 420px;">
-      <div class="card-body d-flex align-items-center justify-content-center">
-        <div class="text-muted fst-italic">Coming Soon</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-{# ---------------- Avg. Diagnosis Time (full width) ---------------- #}
-<div class="card mc-card shadow-sm mt-4 plot-card">
-  <div class="card-body">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <h4 class="h6 mb-0">Avg. Diagnosis Time</h4>
-      <select id="time-window-dropdown" class="form-select form-select-sm" style="max-width: 160px">
-        <option value="7d">Last 7 days</option>
-        <option value="30d">Last 30 days</option>
-        <option value="90d">Last 90 days</option>
-        <option value="all" selected>All time</option>
-      </select>
-    </div>
-    <div id="avg-diagnosis-time-chart" style="height:360px;"></div>
-  </div>
-</div>
-
-{# ---------------- Temporal Metrics ---------------- #}
-<h3 class="h5 mt-4 mb-3">Temporal Metrics</h3>
-<div class="row g-3">
-  <div class="col-12 col-lg-6">
-    <div class="card mc-card shadow-sm plot-card">
-      <div class="card-body">
-        <h4 class="h6 mb-2">Hourly/Daily Active Users</h4>
-        <div id="hourly-active-chart" style="height:360px;"></div>
-      </div>
-    </div>
-  </div>
-  <div class="col-12 col-lg-6">
-    <div class="card mc-card shadow-sm plot-card">
-      <div class="card-body">
-        <h4 class="h6 mb-2">Most Active Days of the Week</h4>
-        <div id="weekday-active-chart" style="height:360px;"></div>
+        <div id="chat-dropoff-funnel" style="height:360px;"></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  // ---- Helpers to keep style consistent with your Dash app ----
+  // ---- Shared palette & base layout ----
   const MC_PRIMARY = '#007CC2';
+  const MC_PRIMARY_LIGHT = '#66B8E6';
   const MC_GRAY = '#E8E8E8';
   const baseLayout = {
     margin: {l: 40, r: 20, t: 20, b: 40},
@@ -205,39 +117,116 @@
     font: {family: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif'}
   };
 
-  function renderEmptyHorizontalBar(divId, title) {
-    const data = [{x: [], y: [], type: 'bar', orientation: 'h', marker: {color: MC_GRAY}}];
-    const layout = {...baseLayout, height: 360, title, yaxis: {autorange: 'reversed'}, bargap: 0.2, margin: {l: 140, r: 20, t: 20, b: 20}};
-    Plotly.newPlot(divId, data, layout, {displayModeBar: false, responsive: true});
+  // ---------------- Dummy data for charts ----------------
+  // License Failures by type (counts)
+  const licenseFailures = {
+    types: ['Invalid', 'Expired', 'Blocked', 'Rate Limited', 'Other'],
+    counts: [18, 9, 6, 12, 4]
+  };
+
+  // Avg. Chat Length (last 6 months)
+  const avgChatLength = {
+    months: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+    avg:    [9, 10, 8, 11, 12, 10]
+  };
+
+  // Drop-off funnel (example absolute numbers)
+  const dropoff = {
+    stages: ['Start Chat', 'After Greeting', 'After Diagnosis', 'After Parts Recommendation', 'Checkout'],
+    values: [1000, 820, 640, 420, 180]
+  };
+
+  // ---------------- Render STATIC charts ----------------
+  // License Key Failures (bar by type)
+  Plotly.newPlot('license-failures-bar', [{
+    x: licenseFailures.types,
+    y: licenseFailures.counts,
+    type: 'bar',
+    marker: { color: MC_PRIMARY }
+  }], {
+    ...baseLayout,
+    height: 360,
+    yaxis: { title: 'Failures' },
+    xaxis: { title: 'Type' }
+  }, {displayModeBar: false, responsive: true});
+
+  // Avg. Chat Length (Line over last 6 months)
+  Plotly.newPlot('avg-chat-length-hist', [{
+    x: avgChatLength.months,
+    y: avgChatLength.avg,
+    type: 'scatter',
+    mode: 'lines+markers',
+    line: { color: MC_PRIMARY, shape: 'spline' },
+    marker: { size: 6 }
+  }], {
+    ...baseLayout,
+    height: 360,
+    xaxis: { title: 'Month' },
+    yaxis: { title: 'Avg. Messages per Chat' }
+  }, {displayModeBar: false, responsive: true});
+
+  // Chat Drop-Off Points (Funnel)
+  Plotly.newPlot('chat-dropoff-funnel', [{
+    type: 'funnel',
+    y: dropoff.stages,
+    x: dropoff.values,
+    marker: { color: MC_PRIMARY }
+  }], {
+    ...baseLayout,
+    height: 360,
+    margin: { l: 120, r: 20, t: 20, b: 20 }
+  }, {displayModeBar: false, responsive: true});
+
+  // ================== License Keys Overview (Donut, dynamic via backend) ==================
+  function renderLicenseKeysDonut(newVal, activeVal, inactiveVal) {
+    const labels = ['New License Keys', 'Active License Keys', 'Inactive License Keys'];
+    const values = [newVal, activeVal, inactiveVal];
+    const colors = [MC_PRIMARY_LIGHT, MC_PRIMARY, MC_GRAY];
+    const total = newVal + activeVal + inactiveVal;
+
+    Plotly.newPlot('license-keys-donut', [{
+      type: 'pie',
+      hole: 0.55,
+      labels,
+      values,
+      marker: { colors },
+      textinfo: 'label+value',
+      hovertemplate: '%{label}: %{value}<extra></extra>',
+      sort: false
+    }], {
+      ...baseLayout,
+      height: 360,
+      showlegend: true,
+      annotations: [{
+        text: total.toString(),
+        font: { size: 20, color: '#111' },
+        showarrow: false,
+        x: 0.5, y: 0.5
+      }]
+    }, {displayModeBar: false, responsive: true});
+
+    // Update small counters
+    document.getElementById('lk-new').textContent = newVal;
+    document.getElementById('lk-active').textContent = activeVal;
+    document.getElementById('lk-inactive').textContent = inactiveVal;
   }
 
-  function renderEmptyVerticalBar(divId, title) {
-    const data = [{x: [], y: [], type: 'bar', marker: {color: MC_GRAY}}];
-    const layout = {...baseLayout, height: 360, title, margin: {l: 40, r: 20, t: 20, b: 40}};
-    Plotly.newPlot(divId, data, layout, {displayModeBar: false, responsive: true});
+  async function loadLicenseKeysSummary() {
+    try {
+      const res = await fetch("{% url 'api_license_keys_summary' %}", { credentials: 'same-origin' });
+      const j = await res.json();
+      if (j.ok && j.data) {
+        const { new: n, active: a, inactive: i } = j.data;
+        renderLicenseKeysDonut(n, a, i);
+      } else {
+        renderLicenseKeysDonut(0, 0, 0);
+      }
+    } catch (e) {
+      renderLicenseKeysDonut(0, 0, 0);
+    }
   }
 
-  function renderEmptyLine(divId, title, spline=false) {
-    const data = [{x: [], y: [], type: 'scatter', mode: 'lines+markers', line: {color: MC_PRIMARY}, marker: {size: 4}}];
-    const layout = {...baseLayout, height: 360, title, margin: {l: 40, r: 20, t: 20, b: 40}};
-    if (spline) data[0].line.shape = 'spline';
-    Plotly.newPlot(divId, data, layout, {displayModeBar: false, responsive: true});
-  }
-
-  // KPI (static for now)
-  document.getElementById('total-chats').textContent = '0';
-
-  // Render all placeholders now (we’ll swap to real data later)
-  renderEmptyHorizontalBar('top-makes-chart', '');
-  renderEmptyHorizontalBar('top-models-chart', '');
-  renderEmptyHorizontalBar('top-issues-chart', '');
-  renderEmptyHorizontalBar('top-parts-chart', '');
-  renderEmptyLine('avg-steps-chart', '', false);
-  renderEmptyVerticalBar('completion-rate-chart', '');
-  renderEmptyLine('avg-diagnosis-time-chart', '', true);
-  renderEmptyLine('hourly-active-chart', '', true);
-  renderEmptyVerticalBar('weekday-active-chart', '');
-
-  // NOTE: When we wire real data, we’ll replace newPlot with Plotly.react
-  // and drop in traces matching the exact look from your Dash app (MC_GRAY fills, MC_PRIMARY accents, edge ticks, etc.).
+  // Initial load (enable interval if you want auto-refresh)
+  loadLicenseKeysSummary();
+  // setInterval(loadLicenseKeysSummary, 90000);
 </script>
