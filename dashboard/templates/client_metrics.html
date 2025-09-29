@@ -1,15 +1,23 @@
 {# --- Client Metrics (Lott.de v1) --- #}
 <style>
   :root {
-    --mc-primary: #007CC2;
-    --mc-primary-light: #66B8E6;
-    --mc-gray: #E8E8E8;
-    --mc-bg: #F5F5F5;
+    --mc-primary: #007cc2;
+    --mc-primary-light: #66b8e6;
+    --mc-gray: #e8e8e8;
+    --mc-bg: #f5f5f5;
   }
-  .mc-card.card { background: #fff; }
-  .plot-card .card-body { padding: 1rem 1rem 0.5rem 1rem; }
-  .activity-item + .activity-item { border-top: 1px solid #eee; }
-  .badge-type { text-transform: capitalize; }
+  .mc-card.card {
+    background: #fff;
+  }
+  .plot-card .card-body {
+    padding: 1rem 1rem 0.5rem 1rem;
+  }
+  .activity-item + .activity-item {
+    border-top: 1px solid #eee;
+  }
+  .badge-type {
+    text-transform: capitalize;
+  }
 </style>
 
 <!-- Row 1 -->
@@ -18,7 +26,7 @@
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
         <h4 class="h6 mb-2">User Growth (Last 5 Months)</h4>
-        <div id="lott-user-growth" style="height:360px;"></div>
+        <div id="lott-user-growth" style="height: 360px"></div>
       </div>
     </div>
   </div>
@@ -26,7 +34,7 @@
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
         <h4 class="h6 mb-2">Car Part Verifications (Last 5 Months)</h4>
-        <div id="lott-verifications" style="height:360px;"></div>
+        <div id="lott-verifications" style="height: 360px"></div>
       </div>
     </div>
   </div>
@@ -38,7 +46,7 @@
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
         <h4 class="h6 mb-2">Support Queries (Last 5 Months)</h4>
-        <div id="lott-support" style="height:360px;"></div>
+        <div id="lott-support" style="height: 360px"></div>
       </div>
     </div>
   </div>
@@ -46,7 +54,7 @@
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
         <h4 class="h6 mb-2">Chat Threads (Last 5 Months)</h4>
-        <div id="lott-chat-threads" style="height:360px;"></div>
+        <div id="lott-chat-threads" style="height: 360px"></div>
       </div>
     </div>
   </div>
@@ -59,13 +67,17 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h4 class="h6 mb-0">Most Active Days</h4>
-          <select id="mad-period" class="form-select form-select-sm" style="max-width:160px">
+          <select
+            id="mad-period"
+            class="form-select form-select-sm"
+            style="max-width: 160px"
+          >
             <option value="all" selected>All day (0–23)</option>
             <option value="am">Morning (0–11)</option>
             <option value="pm">Afternoon/Evening (12–23)</option>
           </select>
         </div>
-        <div id="most-active-days" style="height:360px;"></div>
+        <div id="most-active-days" style="height: 360px"></div>
       </div>
     </div>
   </div>
@@ -89,16 +101,22 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h4 class="h6 mb-0">Most Active Hours</h4>
-          <select id="mah-period" class="form-select form-select-sm" style="max-width:160px">
+          <select
+            id="mah-period"
+            class="form-select form-select-sm"
+            style="max-width: 160px"
+          >
             <option value="all" selected>All day (0–23)</option>
             <option value="am">Morning (0–11)</option>
             <option value="pm">Afternoon/Evening (12–23)</option>
           </select>
         </div>
         <div class="d-flex align-items-center gap-2 mb-2">
-          <span class="badge text-bg-primary">Total Distinct Users: <span id="mah-total">0</span></span>
+          <span class="badge text-bg-primary"
+            >Total Distinct Users: <span id="mah-total">0</span></span
+          >
         </div>
-        <div id="most-active-hours" style="height:360px;"></div>
+        <div id="most-active-hours" style="height: 360px"></div>
       </div>
     </div>
   </div>
@@ -108,21 +126,25 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h4 class="h6 mb-0">Top 5 Makes Diagnosed</h4>
-          <select id="topcars-range" class="form-select form-select-sm" style="max-width:160px">
+          <select
+            id="topcars-range"
+            class="form-select form-select-sm"
+            style="max-width: 160px"
+          >
             <option value="" selected>All time</option>
             <option value="7d">Last 7 days</option>
             <option value="1m">Last 1 month</option>
             <option value="1y">Last 1 year</option>
           </select>
         </div>
-        <div id="top-makes" style="height:240px;"></div>
+        <div id="top-makes" style="height: 240px"></div>
       </div>
     </div>
 
     <div class="card mc-card shadow-sm plot-card">
       <div class="card-body">
         <h4 class="h6 mb-2">Top 5 Models Diagnosed</h4>
-        <div id="top-models" style="height:260px;"></div>
+        <div id="top-models" style="height: 260px"></div>
       </div>
     </div>
   </div>
@@ -136,13 +158,17 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h4 class="h6 mb-0">Related Parts Click Rate</h4>
-          <select id="rpcr-granularity" class="form-select form-select-sm" style="max-width: 180px">
+          <select
+            id="rpcr-granularity"
+            class="form-select form-select-sm"
+            style="max-width: 180px"
+          >
             <option value="hourly">Hourly</option>
             <option value="daily" selected>Daily (last 5)</option>
             <option value="weekly">Weekly</option>
           </select>
         </div>
-        <div id="related-parts-click-rate" style="height:360px;"></div>
+        <div id="related-parts-click-rate" style="height: 360px"></div>
       </div>
     </div>
   </div>
@@ -153,21 +179,98 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h4 class="h6 mb-0">Verified vs Rejected Parts</h4>
         </div>
-        <div id="parts-stats-donut" style="height:360px;"></div>
+        <div id="parts-stats-donut" style="height: 360px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3 class="h6 mt-4 mb-2">Diagnosis Efficiency</h3>
+<div class="row g-3">
+  <div class="col-12 col-lg-6">
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="h6 mb-0">Avg Steps per Diagnosis</h4>
+          <select
+            id="diag-period"
+            class="form-select form-select-sm"
+            style="max-width: 160px"
+          >
+            <option value="daily" selected>Daily (last 7)</option>
+            <option value="hourly">Hourly</option>
+          </select>
+        </div>
+        <div id="avg-steps-per-diagnosis" style="height: 360px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="h6 mb-0">Avg Diagnosis Time</h4>
+          <!-- shares the same #diag-period control -->
+        </div>
+        <div id="avg-diagnosis-time" style="height: 360px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Row: DIY Trend + Top Problem Reasons -->
+<h3 class="h6 mt-4 mb-2">DIY & Problem Reasons</h3>
+<div class="row g-3">
+  <!-- Left: DIY Trend -->
+  <div class="col-12 col-lg-6">
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="h6 mb-0">DIY Instruction Trend</h4>
+          <select
+            id="diy-period"
+            class="form-select form-select-sm"
+            style="max-width: 180px"
+          >
+            <option value="daily" selected>Daily (last 7)</option>
+            <option value="hourly">Hourly</option>
+          </select>
+        </div>
+        <div id="diy-trend" style="height: 360px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Top Problem Reasons (two stacked cards) -->
+  <div class="col-12 col-lg-6">
+    <div class="card mc-card shadow-sm plot-card mb-3">
+      <div class="card-body">
+        <h4 class="h6 mb-2">Top Problem Reasons — High Priority</h4>
+        <div id="top-problems-high" style="height: 240px"></div>
+      </div>
+    </div>
+    <div class="card mc-card shadow-sm plot-card">
+      <div class="card-body">
+        <h4 class="h6 mb-2">Top Problem Reasons — Low/Medium</h4>
+        <div id="top-problems-low" style="height: 260px"></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  const MC_PRIMARY = '#007CC2';
-  const MC_PRIMARY_LIGHT = '#66B8E6';
+  const MC_PRIMARY = "#007CC2";
+  const MC_PRIMARY_LIGHT = "#66B8E6";
 
   const baseLayout = {
     margin: { l: 40, r: 20, t: 20, b: 40 },
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    font: { family: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif' }
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font: {
+      family:
+        "Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
+    },
   };
 
   function unwrap(data) {
@@ -179,99 +282,452 @@
 
   function toSeries(payload) {
     const arr = unwrap(payload);
-    return { months: arr.map(p => p.month), totals: arr.map(p => p.total) };
+    return { months: arr.map((p) => p.month), totals: arr.map((p) => p.total) };
   }
 
   function renderLine(divId, months, totals, color, yTitle) {
     if (!document.getElementById(divId)) return;
-    Plotly.react(divId, [{
-      x: months, y: totals, type: 'scatter', mode: 'lines+markers',
-      line: { color, shape: 'spline' }, marker: { size: 6 }
-    }], {
-      ...baseLayout, height: 360, xaxis: { title: 'Month' }, yaxis: { title: yTitle, rangemode: 'tozero' }
-    }, { displayModeBar: false, responsive: true });
+    Plotly.react(
+      divId,
+      [
+        {
+          x: months,
+          y: totals,
+          type: "scatter",
+          mode: "lines+markers",
+          line: { color, shape: "spline" },
+          marker: { size: 6 },
+        },
+      ],
+      {
+        ...baseLayout,
+        height: 360,
+        xaxis: { title: "Month" },
+        yaxis: { title: yTitle, rangemode: "tozero" },
+      },
+      { displayModeBar: false, responsive: true }
+    );
   }
 
-  function renderUserGrowth(data){ const s=toSeries(data); renderLine('lott-user-growth', s.months, s.totals, MC_PRIMARY_LIGHT, 'Users'); }
-  function renderVerifications(data){ const s=toSeries(data); renderLine('lott-verifications', s.months, s.totals, MC_PRIMARY, 'Verifications'); }
-  function renderSupport(data){ const s=toSeries(data); renderLine('lott-support', s.months, s.totals, MC_PRIMARY, 'Support Queries'); }
-  function renderChatThreads(data){ const s=toSeries(data); renderLine('lott-chat-threads', s.months, s.totals, MC_PRIMARY_LIGHT, 'Chat Threads'); }
+  function renderUserGrowth(data) {
+    const s = toSeries(data);
+    renderLine(
+      "lott-user-growth",
+      s.months,
+      s.totals,
+      MC_PRIMARY_LIGHT,
+      "Users"
+    );
+  }
+  function renderVerifications(data) {
+    const s = toSeries(data);
+    renderLine(
+      "lott-verifications",
+      s.months,
+      s.totals,
+      MC_PRIMARY,
+      "Verifications"
+    );
+  }
+  function renderSupport(data) {
+    const s = toSeries(data);
+    renderLine(
+      "lott-support",
+      s.months,
+      s.totals,
+      MC_PRIMARY,
+      "Support Queries"
+    );
+  }
+  function renderChatThreads(data) {
+    const s = toSeries(data);
+    renderLine(
+      "lott-chat-threads",
+      s.months,
+      s.totals,
+      MC_PRIMARY_LIGHT,
+      "Chat Threads"
+    );
+  }
 
   function renderMostActiveDays(payload) {
     const arr = unwrap(payload);
-    Plotly.react('most-active-days', [
-      { x: arr.map(p=>p.dayOfWeek), y: arr.map(p=>p.distinctUsers), type: 'bar', name: 'Distinct Users', marker: { color: MC_PRIMARY_LIGHT } },
-      { x: arr.map(p=>p.dayOfWeek), y: arr.map(p=>p.totalConversations), type: 'bar', name: 'Total Conversations', marker: { color: MC_PRIMARY } }
-    ], { ...baseLayout, height: 360, barmode: 'group', xaxis: { title: 'Day of Week' }, yaxis: { title: 'Count', rangemode: 'tozero' }, legend: { orientation: 'h', x: 0, y: 1.2 } }, { displayModeBar: false, responsive: true });
+    Plotly.react(
+      "most-active-days",
+      [
+        {
+          x: arr.map((p) => p.dayOfWeek),
+          y: arr.map((p) => p.distinctUsers),
+          type: "bar",
+          name: "Distinct Users",
+          marker: { color: MC_PRIMARY_LIGHT },
+        },
+        {
+          x: arr.map((p) => p.dayOfWeek),
+          y: arr.map((p) => p.totalConversations),
+          type: "bar",
+          name: "Total Conversations",
+          marker: { color: MC_PRIMARY },
+        },
+      ],
+      {
+        ...baseLayout,
+        height: 360,
+        barmode: "group",
+        xaxis: { title: "Day of Week" },
+        yaxis: { title: "Count", rangemode: "tozero" },
+        legend: { orientation: "h", x: 0, y: 1.2 },
+      },
+      { displayModeBar: false, responsive: true }
+    );
   }
 
-  function badgeForType(t){ t=(t||'').toLowerCase(); if(t.includes('chat'))return'primary'; if(t.includes('support'))return'warning'; if(t.includes('license'))return'success'; if(t.includes('carpart'))return'info'; return'secondary'; }
-  function safe(obj, path, fallback=''){ try{ return path.split('.').reduce((o,k)=>(o&&o[k]!==undefined?o[k]:undefined), obj) ?? fallback; }catch(_){ return fallback; } }
-  function formatDate(iso){ if(!iso) return ''; const d=new Date(iso); if(isNaN(d.getTime())) return ''; return d.toLocaleString(); }
+  function badgeForType(t) {
+    t = (t || "").toLowerCase();
+    if (t.includes("chat")) return "primary";
+    if (t.includes("support")) return "warning";
+    if (t.includes("license")) return "success";
+    if (t.includes("carpart")) return "info";
+    return "secondary";
+  }
+  function safe(obj, path, fallback = "") {
+    try {
+      return (
+        path
+          .split(".")
+          .reduce(
+            (o, k) => (o && o[k] !== undefined ? o[k] : undefined),
+            obj
+          ) ?? fallback
+      );
+    } catch (_) {
+      return fallback;
+    }
+  }
+  function formatDate(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleString();
+  }
 
   function renderRecentActivities(list) {
-    const wrap = document.getElementById('recent-activities');
+    const wrap = document.getElementById("recent-activities");
     if (!wrap) return;
     const arr = unwrap(list);
-    wrap.innerHTML = '';
-    if (!arr.length){ wrap.innerHTML='<div class="text-muted fst-italic">No recent activity.</div>'; return; }
-    arr.forEach(item=>{
-      const el=document.createElement('div');
-      el.className='activity-item py-2';
-      el.innerHTML=`
+    wrap.innerHTML = "";
+    if (!arr.length) {
+      wrap.innerHTML =
+        '<div class="text-muted fst-italic">No recent activity.</div>';
+      return;
+    }
+    arr.forEach((item) => {
+      const el = document.createElement("div");
+      el.className = "activity-item py-2";
+      el.innerHTML = `
         <div class="d-flex justify-content-between align-items-start">
           <div>
-            <span class="badge bg-${badgeForType(item.type)} badge-type me-2">${item.type||'Activity'}</span>
-            <span class="fw-semibold">${item.message||''}</span>
+            <span class="badge bg-${badgeForType(item.type)} badge-type me-2">${
+        item.type || "Activity"
+      }</span>
+            <span class="fw-semibold">${item.message || ""}</span>
           </div>
-          ${safe(item,'data.licenseKey.name','') ? `<span class="text-muted small">Key: ${safe(item,'data.licenseKey.name','')}</span>` : ''}
+          ${
+            safe(item, "data.licenseKey.name", "")
+              ? `<span class="text-muted small">Key: ${safe(
+                  item,
+                  "data.licenseKey.name",
+                  ""
+                )}</span>`
+              : ""
+          }
         </div>
-        <div class="text-muted small mt-1">${formatDate(safe(item,'data.createdAt','')||safe(item,'createdAt',''))}</div>`;
+        <div class="text-muted small mt-1">${formatDate(
+          safe(item, "data.createdAt", "") || safe(item, "createdAt", "")
+        )}</div>`;
       wrap.appendChild(el);
     });
   }
 
-  function renderMostActiveHours(data){
-    const perHour = (data && data.perHour) ? data.perHour : Array.from({length:24},(_,h)=>({hour:h,distinctUsers:0}));
-    const totalEl = document.getElementById('mah-total');
-    if (totalEl) totalEl.textContent = (data && typeof data.totalDistinctUsers === 'number') ? data.totalDistinctUsers : 0;
-    Plotly.react('most-active-hours', [{
-      x: perHour.map(p=>p.hour), y: perHour.map(p=>p.distinctUsers),
-      type:'scatter', mode:'lines+markers', line:{color:MC_PRIMARY, shape:'spline'}, marker:{size:5}
-    }], { ...baseLayout, height:360, xaxis:{title:'Hour of Day (0–23)', dtick:1}, yaxis:{title:'Distinct Users', rangemode:'tozero'} }, { displayModeBar:false, responsive:true });
+  function renderMostActiveHours(data) {
+    const perHour =
+      data && data.perHour
+        ? data.perHour
+        : Array.from({ length: 24 }, (_, h) => ({ hour: h, distinctUsers: 0 }));
+    const totalEl = document.getElementById("mah-total");
+    if (totalEl)
+      totalEl.textContent =
+        data && typeof data.totalDistinctUsers === "number"
+          ? data.totalDistinctUsers
+          : 0;
+    Plotly.react(
+      "most-active-hours",
+      [
+        {
+          x: perHour.map((p) => p.hour),
+          y: perHour.map((p) => p.distinctUsers),
+          type: "scatter",
+          mode: "lines+markers",
+          line: { color: MC_PRIMARY, shape: "spline" },
+          marker: { size: 5 },
+        },
+      ],
+      {
+        ...baseLayout,
+        height: 360,
+        xaxis: { title: "Hour of Day (0–23)", dtick: 1 },
+        yaxis: { title: "Distinct Users", rangemode: "tozero" },
+      },
+      { displayModeBar: false, responsive: true }
+    );
   }
 
-  function renderTopCarDiagnoses(data){
-    const makes=(data&&data.top5Makes)||[], models=(data&&data.top5Models)||[];
-    Plotly.react('top-makes', [{ x:makes.map(m=>m.count), y:makes.map(m=>m.make), type:'bar', orientation:'h', marker:{color:MC_PRIMARY} }], { ...baseLayout, height:240, yaxis:{autorange:'reversed'}, xaxis:{title:'Count', rangemode:'tozero'} }, { displayModeBar:false, responsive:true });
-    Plotly.react('top-models', [{ x:models.map(m=>m.count), y:models.map(m=>m.model), type:'bar', orientation:'h', marker:{color:MC_PRIMARY_LIGHT} }], { ...baseLayout, height:260, yaxis:{autorange:'reversed'}, xaxis:{title:'Count', rangemode:'tozero'} }, { displayModeBar:false, responsive:true });
+  function renderTopCarDiagnoses(data) {
+    const makes = (data && data.top5Makes) || [],
+      models = (data && data.top5Models) || [];
+    Plotly.react(
+      "top-makes",
+      [
+        {
+          x: makes.map((m) => m.count),
+          y: makes.map((m) => m.make),
+          type: "bar",
+          orientation: "h",
+          marker: { color: MC_PRIMARY },
+        },
+      ],
+      {
+        ...baseLayout,
+        height: 240,
+        yaxis: { autorange: "reversed" },
+        xaxis: { title: "Count", rangemode: "tozero" },
+      },
+      { displayModeBar: false, responsive: true }
+    );
+    Plotly.react(
+      "top-models",
+      [
+        {
+          x: models.map((m) => m.count),
+          y: models.map((m) => m.model),
+          type: "bar",
+          orientation: "h",
+          marker: { color: MC_PRIMARY_LIGHT },
+        },
+      ],
+      {
+        ...baseLayout,
+        height: 260,
+        yaxis: { autorange: "reversed" },
+        xaxis: { title: "Count", rangemode: "tozero" },
+      },
+      { displayModeBar: false, responsive: true }
+    );
   }
 
-  function renderRelatedPartsClickRate(data){
+  function renderRelatedPartsClickRate(data) {
     const arr = unwrap(data);
-    Plotly.react('related-parts-click-rate', [{
-      x: arr.map(p=>p.date ?? p.hour ?? p.week ?? p._id ?? ''),
-      y: arr.map(p=> typeof p.clickRate==='number' ? p.clickRate : 0),
-      type:'scatter', mode:'lines+markers', line:{color:MC_PRIMARY, shape:'spline'}, marker:{size:6},
-      hovertemplate:'Rate: %{y:.1f}%<extra></extra>'
-    }], { ...baseLayout, height:360, xaxis:{title:'Period'}, yaxis:{title:'Click Rate (%)', rangemode:'tozero', range:[0,100]} }, { displayModeBar:false, responsive:true });
+    Plotly.react(
+      "related-parts-click-rate",
+      [
+        {
+          x: arr.map((p) => p.date ?? p.hour ?? p.week ?? p._id ?? ""),
+          y: arr.map((p) =>
+            typeof p.clickRate === "number" ? p.clickRate : 0
+          ),
+          type: "scatter",
+          mode: "lines+markers",
+          line: { color: MC_PRIMARY, shape: "spline" },
+          marker: { size: 6 },
+          hovertemplate: "Rate: %{y:.1f}%<extra></extra>",
+        },
+      ],
+      {
+        ...baseLayout,
+        height: 360,
+        xaxis: { title: "Period" },
+        yaxis: {
+          title: "Click Rate (%)",
+          rangemode: "tozero",
+          range: [0, 100],
+        },
+      },
+      { displayModeBar: false, responsive: true }
+    );
   }
 
-  function renderPartsStatsDonut(data){
+  function renderPartsStatsDonut(data) {
     const arr = unwrap(data);
-    Plotly.react('parts-stats-donut', [{
-      type:'pie', hole:0.55, labels:arr.map(p=>p.label), values:arr.map(p=>p.count),
-      marker:{ colors:[MC_PRIMARY, MC_PRIMARY_LIGHT, '#E8E8E8'] }, textinfo:'label+value',
-      hovertemplate:'%{label}: %{value}<extra></extra>', sort:false
-    }], { ...baseLayout, height:360, showlegend:true }, { displayModeBar:false, responsive:true });
+    Plotly.react(
+      "parts-stats-donut",
+      [
+        {
+          type: "pie",
+          hole: 0.55,
+          labels: arr.map((p) => p.label),
+          values: arr.map((p) => p.count),
+          marker: { colors: [MC_PRIMARY, MC_PRIMARY_LIGHT, "#E8E8E8"] },
+          textinfo: "label+value",
+          hovertemplate: "%{label}: %{value}<extra></extra>",
+          sort: false,
+        },
+      ],
+      { ...baseLayout, height: 360, showlegend: true },
+      { displayModeBar: false, responsive: true }
+    );
   }
 
-  async function loadClientMetrics(extraParams=''){
+  function renderAvgStepsPerDiagnosis(data) {
+    const arr = unwrap(data);
+    const x = arr.map((p) => p.date ?? p.hour ?? p._id ?? "");
+    const y = arr.map((p) =>
+      typeof p.avgStepsPerDiagnosis === "number"
+        ? p.avgStepsPerDiagnosis
+        : parseFloat(p.avgStepsPerDiagnosis) || 0
+    );
+    Plotly.react(
+      "avg-steps-per-diagnosis",
+      [
+        {
+          x,
+          y,
+          type: "scatter",
+          mode: "lines+markers",
+          line: { color: MC_PRIMARY_LIGHT, shape: "spline" },
+          marker: { size: 6 },
+          hovertemplate: "Avg steps: %{y:.2f}<extra></extra>",
+        },
+      ],
+      {
+        ...baseLayout,
+        height: 360,
+        xaxis: { title: "Period" },
+        yaxis: { title: "Avg Steps", rangemode: "tozero" },
+      },
+      { displayModeBar: false, responsive: true }
+    );
+  }
+
+  function renderAvgDiagnosisTime(data) {
+    const arr = unwrap(data);
+    const x = arr.map((p) => p.date ?? p.hour ?? p._id ?? "");
+    // prefer normalized numeric 'minutes' from the service; fallback parse from string
+    const y = arr.map((p) =>
+      typeof p.minutes === "number"
+        ? p.minutes
+        : parseFloat(
+            String(p.avgDiagnosisTimeMinutes || "").replace(/[^\d.]/g, "")
+          ) || 0
+    );
+    Plotly.react(
+      "avg-diagnosis-time",
+      [
+        {
+          x,
+          y,
+          type: "scatter",
+          mode: "lines+markers",
+          line: { color: MC_PRIMARY, shape: "spline" },
+          marker: { size: 6 },
+          hovertemplate: "Avg time: %{y:.2f} min<extra></extra>",
+        },
+      ],
+      {
+        ...baseLayout,
+        height: 360,
+        xaxis: { title: "Period" },
+        yaxis: { title: "Avg Time (minutes)", rangemode: "tozero" },
+      },
+      { displayModeBar: false, responsive: true }
+    );
+  }
+
+  function renderDIYTrend(data) {
+    const arr = unwrap(data);
+    if (!arr.length) {
+      Plotly.react("diy-trend", [], { ...baseLayout, height: 360 });
+      return;
+    }
+
+    // Take the last point only (or sum over all, depending on preference)
+    const last = arr[arr.length - 1];
+    const total = last.totalUsers || 0;
+    const engaged = last.engagedUsers || 0;
+    const notEngaged = Math.max(total - engaged, 0);
+
+    Plotly.react(
+      "diy-trend",
+      [
+        {
+          type: "pie",
+          hole: 0.55,
+          labels: ["Engaged Users", "Not Engaged"],
+          values: [engaged, notEngaged],
+          marker: { colors: [MC_PRIMARY, MC_PRIMARY_LIGHT] },
+          textinfo: "label+value",
+          hovertemplate: "%{label}: %{value}<extra></extra>",
+          sort: false,
+        },
+      ],
+      { ...baseLayout, height: 360, showlegend: true },
+      { displayModeBar: false, responsive: true }
+    );
+  }
+
+  // --- NEW: Top Problem Reasons (two horizontal bars) ---
+  function renderTopProblemReasons(data) {
+    const high = (data && data.highPriority) || [];
+    const low = (data && data.lowPriority) || [];
+
+    Plotly.react(
+      "top-problems-high",
+      [
+        {
+          x: high.map((d) => d.count),
+          y: high.map((d) => d.title),
+          type: "bar",
+          orientation: "h",
+          marker: { color: MC_PRIMARY },
+        },
+      ],
+      {
+        ...baseLayout,
+        height: 240,
+        yaxis: { autorange: "reversed" },
+        xaxis: { title: "Count", rangemode: "tozero" },
+      },
+      { displayModeBar: false, responsive: true }
+    );
+
+    Plotly.react(
+      "top-problems-low",
+      [
+        {
+          x: low.map((d) => d.count),
+          y: low.map((d) => d.title),
+          type: "bar",
+          orientation: "h",
+          marker: { color: MC_PRIMARY_LIGHT },
+        },
+      ],
+      {
+        ...baseLayout,
+        height: 260,
+        yaxis: { autorange: "reversed" },
+        xaxis: { title: "Count", rangemode: "tozero" },
+      },
+      { displayModeBar: false, responsive: true }
+    );
+  }
+
+  async function loadClientMetrics(extraParams = "") {
     try {
-      const url = "{% url 'api_client_metrics' %}" + (extraParams ? ("?" + extraParams) : "");
-      const res = await fetch(url, { credentials:'same-origin' });
+      const url =
+        "{% url 'api_client_metrics' %}" +
+        (extraParams ? "?" + extraParams : "");
+      const res = await fetch(url, { credentials: "same-origin" });
       const j = await res.json();
-      if (j.ok && j.data){
+      if (j.ok && j.data) {
         renderUserGrowth(j.data.user_chart);
         renderVerifications(j.data.verify_chart);
         renderSupport(j.data.support_chart);
@@ -282,38 +738,111 @@
         renderTopCarDiagnoses(j.data.top_car_diagnoses);
         renderRelatedPartsClickRate(j.data.related_parts_click_rate);
         renderPartsStatsDonut(j.data.parts_stats);
+
+        // 🔥 Add these:
+        renderAvgStepsPerDiagnosis(j.data.avg_steps_per_diagnosis);
+        renderAvgDiagnosisTime(j.data.avg_diagnosis_time);
+
+        renderDIYTrend(j.data.diy_trend);
+        renderTopProblemReasons(j.data.top_problem_reasons);
       } else {
-        renderUserGrowth([]); renderVerifications([]); renderSupport([]); renderChatThreads([]);
-        renderMostActiveDays([]); renderRecentActivities([]);
-        renderMostActiveHours({period:'all', totalDistinctUsers:0, perHour:Array.from({length:24},(_,h)=>({hour:h,distinctUsers:0}))});
-        renderTopCarDiagnoses({top5Makes:[], top5Models:[]});
-        renderRelatedPartsClickRate([]); renderPartsStatsDonut([]);
+        renderUserGrowth([]);
+        renderVerifications([]);
+        renderSupport([]);
+        renderChatThreads([]);
+        renderMostActiveDays([]);
+        renderRecentActivities([]);
+        renderMostActiveHours({
+          period: "all",
+          totalDistinctUsers: 0,
+          perHour: Array.from({ length: 24 }, (_, h) => ({
+            hour: h,
+            distinctUsers: 0,
+          })),
+        });
+        renderTopCarDiagnoses({ top5Makes: [], top5Models: [] });
+        renderRelatedPartsClickRate([]);
+        renderPartsStatsDonut([]);
+
+        // 🔥 Add fallbacks:
+        renderAvgStepsPerDiagnosis([]);
+        renderAvgDiagnosisTime([]);
+
+        renderDIYTrend([]);
+        renderTopProblemReasons({ highPriority: [], lowPriority: [] });
       }
     } catch {
-      renderUserGrowth([]); renderVerifications([]); renderSupport([]); renderChatThreads([]);
-      renderMostActiveDays([]); renderRecentActivities([]);
-      renderMostActiveHours({period:'all', totalDistinctUsers:0, perHour:Array.from({length:24},(_,h)=>({hour:h,distinctUsers:0}))});
-      renderTopCarDiagnoses({top5Makes:[], top5Models:[]});
-      renderRelatedPartsClickRate([]); renderPartsStatsDonut([]);
+      renderUserGrowth([]);
+      renderVerifications([]);
+      renderSupport([]);
+      renderChatThreads([]);
+      renderMostActiveDays([]);
+      renderRecentActivities([]);
+      renderMostActiveHours({
+        period: "all",
+        totalDistinctUsers: 0,
+        perHour: Array.from({ length: 24 }, (_, h) => ({
+          hour: h,
+          distinctUsers: 0,
+        })),
+      });
+      renderTopCarDiagnoses({ top5Makes: [], top5Models: [] });
+      renderRelatedPartsClickRate([]);
+      renderPartsStatsDonut([]);
+
+      // 🔥 Add fallbacks:
+      renderAvgStepsPerDiagnosis([]);
+      renderAvgDiagnosisTime([]);
+
+      renderDIYTrend([]);
+      renderTopProblemReasons({ highPriority: [], lowPriority: [] });
     }
   }
 
-  function buildQS(){
+  // Debounced loader to avoid firing multiple requests in quick succession
+  const debouncedReload = (() => {
+    let t;
+    return (qs = "") => {
+      clearTimeout(t);
+      t = setTimeout(() => loadClientMetrics(qs), 250);
+    };
+  })();
+
+  function buildQS() {
     const qs = new URLSearchParams();
-    const periodMAD = document.getElementById('mad-period')?.value || 'all';
-    const periodMAH = document.getElementById('mah-period')?.value || periodMAD || 'all';
-    const dateRange = document.getElementById('topcars-range')?.value || '';
-    const gran      = document.getElementById('rpcr-granularity')?.value || 'daily';
-    if (periodMAH) qs.set('period', periodMAH);
-    if (dateRange) qs.set('dateRange', dateRange);
-    if (gran) qs.set('granularity', gran);
+    const periodMAD = document.getElementById("mad-period")?.value || "all";
+    const periodMAH =
+      document.getElementById("mah-period")?.value || periodMAD || "all";
+    const dateRange = document.getElementById("topcars-range")?.value || "";
+    const gran = document.getElementById("rpcr-granularity")?.value || "daily";
+    const diyP = document.getElementById("diy-period")?.value || "daily"; // NEW
+    if (periodMAH) qs.set("period", periodMAH);
+    if (dateRange) qs.set("dateRange", dateRange);
+    if (gran) qs.set("granularity", gran);
+    if (diyP) qs.set("diyPeriod", diyP); // NEW
     return qs.toString();
   }
-
+  // Initial load
   loadClientMetrics();
 
-  document.getElementById('mad-period')?.addEventListener('change', ()=>loadClientMetrics(buildQS()));
-  document.getElementById('mah-period')?.addEventListener('change', ()=>loadClientMetrics(buildQS()));
-  document.getElementById('topcars-range')?.addEventListener('change', ()=>loadClientMetrics(buildQS()));
-  document.getElementById('rpcr-granularity')?.addEventListener('change', ()=>loadClientMetrics(buildQS()));
+  // Replace direct calls with debouncedReload
+  document
+    .getElementById("mad-period")
+    ?.addEventListener("change", () => debouncedReload(buildQS()));
+  document
+    .getElementById("mah-period")
+    ?.addEventListener("change", () => debouncedReload(buildQS()));
+  document
+    .getElementById("topcars-range")
+    ?.addEventListener("change", () => debouncedReload(buildQS()));
+  document
+    .getElementById("rpcr-granularity")
+    ?.addEventListener("change", () => debouncedReload(buildQS()));
+  document
+    .getElementById("diag-period")
+    ?.addEventListener("change", () => debouncedReload(buildQS()));
+
+  document
+    .getElementById("diy-period")
+    ?.addEventListener("change", () => debouncedReload(buildQS()));
 </script>

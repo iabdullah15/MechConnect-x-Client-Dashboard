@@ -86,148 +86,380 @@ def fetch_license_key_stats() -> Dict[str, Any]:
     }
 
 
-def _authed_get(url: str, params: Optional[Dict[str, Any]] = None) -> requests.Response:
-    """GET with auth; retry login once on 401."""
+# def _authed_get(url: str, params: Optional[Dict[str, Any]] = None) -> requests.Response:
+#     """GET with auth; retry login once on 401."""
+#     global _TOKEN
+#     headers = _auth_headers()
+#     r = requests.get(url, headers=headers, params=params or {}, timeout=20)
+#     if r.status_code == 401:
+#         _TOKEN = None
+#         headers = _auth_headers()
+#         r = requests.get(url, headers=headers, params=params or {}, timeout=20)
+#     r.raise_for_status()
+#     return r
+
+
+# # ---------------- Lott.de metrics ----------------
+
+# def fetch_lott_users_last5() -> List[Dict[str, Any]]:
+#     """
+#     GET /api/admin/dashboard/user-chart
+#     Returns list of objects: [{"month":"May","total":0}, ...]
+#     """
+#     url = f"{EXT_API_BASE}/admin/dashboard/user-chart"
+#     r = _authed_get(url)
+#     j = r.json() or {}
+#     payload = j.get("payload") or []
+#     # Normalize: only take 'month' and 'total'
+#     normalized = [{"month": item.get("month"), "total": int(
+#         item.get("total") or 0)} for item in payload]
+#     return normalized
+
+
+# def fetch_lott_verifications_last5(license_key: Optional[str] = None) -> List[Dict[str, Any]]:
+#     """
+#     GET /api/admin/dashboard/car-part-verify-chart(?licenseKey=...)
+#     Returns list of objects: [{"month":"May","total":0}, ...]
+#     """
+#     url = f"{EXT_API_BASE}/admin/dashboard/car-part-verify-chart"
+#     params = {"licenseKey": license_key} if license_key else None
+#     r = _authed_get(url, params=params)
+#     j = r.json() or {}
+#     payload = j.get("payload") or []
+#     normalized = [{"month": item.get("month"), "total": int(
+#         item.get("total") or 0)} for item in payload]
+#     return normalized
+
+
+# # ... keep existing imports and helpers at the top ...
+
+# def fetch_support_last5(license_key: Optional[str] = None) -> List[Dict[str, Any]]:
+#     """
+#     GET /api/admin/dashboard/support-chart(?licenseKey=...)
+#     Returns [{"month":"May","total":0}, ...]
+#     """
+#     url = f"{EXT_API_BASE}/admin/dashboard/support-chart"
+#     params = {"licenseKey": license_key} if license_key else None
+#     r = _authed_get(url, params=params)
+#     j = r.json() or {}
+#     payload = j.get("payload") or []
+#     return [{"month": p.get("month"), "total": int(p.get("total") or 0)} for p in payload]
+
+
+# def fetch_chat_threads_last5(license_key: Optional[str] = None) -> List[Dict[str, Any]]:
+#     """
+#     GET /api/admin/dashboard/chat-thread-chart(?licenseKey=...)
+#     Returns [{"month":"May","total":0}, ...]
+#     """
+#     url = f"{EXT_API_BASE}/admin/dashboard/chat-thread-chart"
+#     params = {"licenseKey": license_key} if license_key else None
+#     r = _authed_get(url, params=params)
+#     j = r.json() or {}
+#     payload = j.get("payload") or []
+#     return [{"month": p.get("month"), "total": int(p.get("total") or 0)} for p in payload]
+
+
+# def fetch_recent_activities(limit: int = 5, license_key: Optional[str] = None) -> List[Dict[str, Any]]:
+#     """
+#     GET /api/admin/dashboard/recent-activities
+#     Returns a list of recent items across modules (we'll keep top 5).
+#     """
+#     url = f"{EXT_API_BASE}/admin/dashboard/recent-activities"
+#     # API returns 5 already, but we allow future flexibility
+#     params = {"licenseKey": license_key} if license_key else None
+#     r = _authed_get(url, params=params)
+#     j = r.json() or {}
+#     acts = j.get("activities") or []
+#     # normalize (defensive)
+#     if limit and isinstance(acts, list):
+#         acts = acts[:limit]
+#     return acts
+
+
+# def fetch_most_active_days(period: str = "all", license_key: Optional[str] = None) -> List[Dict[str, Any]]:
+#     """
+#     GET /api/admin/dashboard/get-most-active-days(?period=all|am|pm&licenseKey=...)
+#     Returns [{dayOfWeek, distinctUsers, totalConversations}, ...]
+#     """
+#     url = f"{EXT_API_BASE}/admin/dashboard/get-most-active-days"
+#     params: Dict[str, Any] = {"period": period}
+#     if license_key:
+#         params["licenseKey"] = license_key
+#     r = _authed_get(url, params=params)
+#     j = r.json() or {}
+#     payload = j.get("payload") or []
+#     # normalize: ensure ints
+#     norm = []
+#     for p in payload:
+#         norm.append({
+#             "dayOfWeek": p.get("dayOfWeek"),
+#             "distinctUsers": int(p.get("distinctUsers") or 0),
+#             "totalConversations": int(p.get("totalConversations") or 0),
+#         })
+#     return norm
+
+
+# def fetch_most_active_hours(period: str = "all", license_key: Optional[str] = None) -> Dict[str, Any]:
+#     """
+#     GET /api/admin/dashboard/get-most-active-hours(?period=all|am|pm&licenseKey=...)
+#     Expected shape:
+#     {
+#       "period": "all",
+#       "totalDistinctUsers": 6,
+#       "perHour": [{"hour":0,"distinctUsers":0}, ...]
+#     }
+#     """
+#     url = f"{EXT_API_BASE}/admin/dashboard/get-most-active-hours"
+#     params: Dict[str, Any] = {"period": period}
+#     if license_key:
+#         params["licenseKey"] = license_key
+#     r = _authed_get(url, params=params)
+#     j = r.json() or {}
+#     payload = j.get("payload") or {}
+#     # Normalize
+#     per_hour = payload.get("perHour") or []
+#     norm = {
+#         "period": payload.get("period") or period,
+#         "totalDistinctUsers": int(payload.get("totalDistinctUsers") or 0),
+#         "perHour": [
+#             {"hour": int(p.get("hour") or 0), "distinctUsers": int(
+#                 p.get("distinctUsers") or 0)}
+#             for p in per_hour
+#         ]
+#     }
+#     # Ensure all 24 hours present (0..23) even if API returns sparse data
+#     if len(norm["perHour"]) < 24:
+#         seen = {ph["hour"]: ph for ph in norm["perHour"]}
+#         norm["perHour"] = [{"hour": h, "distinctUsers": seen.get(h, {"distinctUsers": 0}).get("distinctUsers", 0)}
+#                            for h in range(24)]
+#     return norm
+
+
+# def fetch_top_car_diagnoses(license_key: Optional[str] = None,
+#                             date_range: Optional[str] = None) -> Dict[str, List[Dict[str, Any]]]:
+#     """
+#     GET /api/admin/dashboard/get-top-car-diagnoses(?licenseKey=...&dateRange=7d|1m|1y)
+#     Returns:
+#     {
+#       "top5Makes": [{"make":"AUDI","count":2}, ...],
+#       "top5Models":[{"model":"A3 ...","count":2}, ...]
+#     }
+#     """
+#     url = f"{EXT_API_BASE}/admin/dashboard/get-top-car-diagnoses"
+#     params: Dict[str, Any] = {}
+#     if license_key:
+#         params["licenseKey"] = license_key
+#     if date_range:
+#         params["dateRange"] = date_range
+#     r = _authed_get(url, params=params)
+#     j = r.json() or {}
+#     payload = j.get("payload") or {}
+#     makes = payload.get("top5Makes") or []
+#     models = payload.get("top5Models") or []
+#     # Normalize integers
+#     makes = [{"make": m.get("make") or "—", "count": int(
+#         m.get("count") or 0)} for m in makes]
+#     models = [{"model": m.get("model") or "—", "count": int(
+#         m.get("count") or 0)} for m in models]
+#     return {"top5Makes": makes, "top5Models": models}
+
+
+# # -------- FIXED FETCHERS --------
+# def fetch_related_parts_click_rate(granularity: str = "daily",
+#                                    license_key: Optional[str] = None) -> List[Dict[str, Any]]:
+#     """
+#     GET /admin/dashboard/get-related-parts-click-rate?granularity=hourly|daily|weekly[&licenseKey=...]
+#     Returns a list of points; we keep API fields as-is.
+#     """
+#     url = f"{EXT_API_BASE}/admin/dashboard/get-related-parts-click-rate"  # <-- removed extra /api
+#     params: Dict[str, Any] = {"granularity": granularity}
+#     if license_key:
+#         params["licenseKey"] = license_key
+#     r = _authed_get(url, params=params)
+#     j = r.json() or {}
+#     payload = j.get("payload") or []
+#     # normalize numerics defensively
+#     for p in payload:
+#         if "clickRate" in p and p["clickRate"] is not None:
+#             try:
+#                 p["clickRate"] = float(p["clickRate"])
+#             except Exception:
+#                 p["clickRate"] = 0.0
+#     return payload
+
+# def fetch_parts_stats(license_key: Optional[str] = None) -> List[Dict[str, Any]]:
+#     """
+#     GET /admin/dashboard/get-parts-stats[?licenseKey=...]
+#     Returns [{"label":"Verified Parts","count":n}, {"label":"Rejected Parts","count":m}]
+#     """
+#     url = f"{EXT_API_BASE}/admin/dashboard/get-parts-stats"  # <-- removed extra /api
+#     params: Dict[str, Any] = {}
+#     if license_key:
+#         params["licenseKey"] = license_key
+#     r = _authed_get(url, params=params)
+#     j = r.json() or {}
+#     payload = j.get("payload") or []
+#     # ensure count is int
+#     return [{"label": p.get("label") or "—", "count": int(p.get("count") or 0)} for p in payload]
+
+
+
+
+
+# If you're not using Django cache yet, you can stub this with a dict.
+# Assuming Django:
+from django.core.cache import cache
+
+_TOKEN: str | None = None
+
+
+def _login_and_get_token() -> str:
     global _TOKEN
-    headers = _auth_headers()
-    r = requests.get(url, headers=headers, params=params or {}, timeout=20)
-    if r.status_code == 401:
-        _TOKEN = None
-        headers = _auth_headers()
-        r = requests.get(url, headers=headers, params=params or {}, timeout=20)
+    url = f"{EXT_API_BASE}/admin/auth/login"
+    payload = {"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
+    r = requests.post(url, json=payload, timeout=15)
     r.raise_for_status()
-    return r
+    j = r.json()
+    token = j.get("payload", {}).get("token")
+    if not token:
+        raise RuntimeError("External login did not return a token.")
+    _TOKEN = token
+    return token
+
+
+def _auth_headers() -> Dict[str, str]:
+    global _TOKEN
+    if not _TOKEN:
+        _login_and_get_token()
+    return {"Authorization": f"Bearer {_TOKEN}"}
+
+
+def _cache_key(url: str, params: Optional[Dict[str, Any]]) -> str:
+    # Stable key from url + sorted params
+    p = params or {}
+    try:
+        packed = json.dumps(sorted(p.items()), separators=(",", ":"), ensure_ascii=True)
+    except Exception:
+        packed = str(sorted(p.items()))
+    return f"extjson::{url}::{packed}"
+
+
+def _authed_get_json(
+    url: str,
+    params: Optional[Dict[str, Any]] = None,
+    *,
+    ttl_seconds: Optional[int] = 60,
+    retries: int = 5,                 # was 3
+    timeout: int = 20,
+) -> Dict[str, Any]:
+    ck = _cache_key(url, params)
+    if ttl_seconds and (cached := cache.get(ck)) is not None:
+        return cached
+
+    global _TOKEN
+    attempt = 0
+    while True:
+        attempt += 1
+        headers = _auth_headers()
+        r = requests.get(url, headers=headers, params=params or {}, timeout=timeout)
+
+        if r.status_code == 401:
+            _TOKEN = None
+            headers = _auth_headers()
+            r = requests.get(url, headers=headers, params=params or {}, timeout=timeout)
+
+        if r.status_code in (429, 502, 503, 504):
+            if attempt >= retries:
+                r.raise_for_status()
+            retry_after = r.headers.get("Retry-After")
+            if retry_after:
+                try:
+                    sleep_for = float(retry_after)
+                except Exception:
+                    sleep_for = 2.0
+            else:
+                # exponential backoff with jitter, capped
+                base = min(2 ** (attempt - 1), 16)
+                sleep_for = base + random.uniform(0, 0.5)
+            time.sleep(sleep_for)
+            continue
+
+        r.raise_for_status()
+        j = r.json() or {}
+        if ttl_seconds:
+            cache.set(ck, j, ttl_seconds)
+        return j
 
 
 # ---------------- Lott.de metrics ----------------
 
 def fetch_lott_users_last5() -> List[Dict[str, Any]]:
-    """
-    GET /api/admin/dashboard/user-chart
-    Returns list of objects: [{"month":"May","total":0}, ...]
-    """
     url = f"{EXT_API_BASE}/admin/dashboard/user-chart"
-    r = _authed_get(url)
-    j = r.json() or {}
+    j = _authed_get_json(url, ttl_seconds=60)
     payload = j.get("payload") or []
-    # Normalize: only take 'month' and 'total'
-    normalized = [{"month": item.get("month"), "total": int(
-        item.get("total") or 0)} for item in payload]
-    return normalized
+    return [{"month": p.get("month"), "total": int(p.get("total") or 0)} for p in payload]
 
 
 def fetch_lott_verifications_last5(license_key: Optional[str] = None) -> List[Dict[str, Any]]:
-    """
-    GET /api/admin/dashboard/car-part-verify-chart(?licenseKey=...)
-    Returns list of objects: [{"month":"May","total":0}, ...]
-    """
     url = f"{EXT_API_BASE}/admin/dashboard/car-part-verify-chart"
     params = {"licenseKey": license_key} if license_key else None
-    r = _authed_get(url, params=params)
-    j = r.json() or {}
+    j = _authed_get_json(url, params=params, ttl_seconds=60)
     payload = j.get("payload") or []
-    normalized = [{"month": item.get("month"), "total": int(
-        item.get("total") or 0)} for item in payload]
-    return normalized
+    return [{"month": p.get("month"), "total": int(p.get("total") or 0)} for p in payload]
 
-
-# ... keep existing imports and helpers at the top ...
 
 def fetch_support_last5(license_key: Optional[str] = None) -> List[Dict[str, Any]]:
-    """
-    GET /api/admin/dashboard/support-chart(?licenseKey=...)
-    Returns [{"month":"May","total":0}, ...]
-    """
     url = f"{EXT_API_BASE}/admin/dashboard/support-chart"
     params = {"licenseKey": license_key} if license_key else None
-    r = _authed_get(url, params=params)
-    j = r.json() or {}
+    j = _authed_get_json(url, params=params, ttl_seconds=60)
     payload = j.get("payload") or []
     return [{"month": p.get("month"), "total": int(p.get("total") or 0)} for p in payload]
 
 
 def fetch_chat_threads_last5(license_key: Optional[str] = None) -> List[Dict[str, Any]]:
-    """
-    GET /api/admin/dashboard/chat-thread-chart(?licenseKey=...)
-    Returns [{"month":"May","total":0}, ...]
-    """
     url = f"{EXT_API_BASE}/admin/dashboard/chat-thread-chart"
     params = {"licenseKey": license_key} if license_key else None
-    r = _authed_get(url, params=params)
-    j = r.json() or {}
+    j = _authed_get_json(url, params=params, ttl_seconds=60)
     payload = j.get("payload") or []
     return [{"month": p.get("month"), "total": int(p.get("total") or 0)} for p in payload]
 
 
 def fetch_recent_activities(limit: int = 5, license_key: Optional[str] = None) -> List[Dict[str, Any]]:
-    """
-    GET /api/admin/dashboard/recent-activities
-    Returns a list of recent items across modules (we'll keep top 5).
-    """
     url = f"{EXT_API_BASE}/admin/dashboard/recent-activities"
-    # API returns 5 already, but we allow future flexibility
     params = {"licenseKey": license_key} if license_key else None
-    r = _authed_get(url, params=params)
-    j = r.json() or {}
+    j = _authed_get_json(url, params=params, ttl_seconds=30)
     acts = j.get("activities") or []
-    # normalize (defensive)
-    if limit and isinstance(acts, list):
-        acts = acts[:limit]
-    return acts
+    return acts[:limit] if isinstance(acts, list) else []
 
 
 def fetch_most_active_days(period: str = "all", license_key: Optional[str] = None) -> List[Dict[str, Any]]:
-    """
-    GET /api/admin/dashboard/get-most-active-days(?period=all|am|pm&licenseKey=...)
-    Returns [{dayOfWeek, distinctUsers, totalConversations}, ...]
-    """
     url = f"{EXT_API_BASE}/admin/dashboard/get-most-active-days"
     params: Dict[str, Any] = {"period": period}
-    if license_key:
-        params["licenseKey"] = license_key
-    r = _authed_get(url, params=params)
-    j = r.json() or {}
+    if license_key: params["licenseKey"] = license_key
+    j = _authed_get_json(url, params=params, ttl_seconds=60)
     payload = j.get("payload") or []
-    # normalize: ensure ints
-    norm = []
-    for p in payload:
-        norm.append({
-            "dayOfWeek": p.get("dayOfWeek"),
-            "distinctUsers": int(p.get("distinctUsers") or 0),
-            "totalConversations": int(p.get("totalConversations") or 0),
-        })
-    return norm
+    return [{
+        "dayOfWeek": p.get("dayOfWeek"),
+        "distinctUsers": int(p.get("distinctUsers") or 0),
+        "totalConversations": int(p.get("totalConversations") or 0),
+    } for p in payload]
 
 
 def fetch_most_active_hours(period: str = "all", license_key: Optional[str] = None) -> Dict[str, Any]:
-    """
-    GET /api/admin/dashboard/get-most-active-hours(?period=all|am|pm&licenseKey=...)
-    Expected shape:
-    {
-      "period": "all",
-      "totalDistinctUsers": 6,
-      "perHour": [{"hour":0,"distinctUsers":0}, ...]
-    }
-    """
     url = f"{EXT_API_BASE}/admin/dashboard/get-most-active-hours"
     params: Dict[str, Any] = {"period": period}
-    if license_key:
-        params["licenseKey"] = license_key
-    r = _authed_get(url, params=params)
-    j = r.json() or {}
+    if license_key: params["licenseKey"] = license_key
+    j = _authed_get_json(url, params=params, ttl_seconds=60)
     payload = j.get("payload") or {}
-    # Normalize
     per_hour = payload.get("perHour") or []
     norm = {
         "period": payload.get("period") or period,
         "totalDistinctUsers": int(payload.get("totalDistinctUsers") or 0),
         "perHour": [
-            {"hour": int(p.get("hour") or 0), "distinctUsers": int(
-                p.get("distinctUsers") or 0)}
+            {"hour": int(p.get("hour") or 0), "distinctUsers": int(p.get("distinctUsers") or 0)}
             for p in per_hour
         ]
     }
-    # Ensure all 24 hours present (0..23) even if API returns sparse data
     if len(norm["perHour"]) < 24:
         seen = {ph["hour"]: ph for ph in norm["perHour"]}
         norm["perHour"] = [{"hour": h, "distinctUsers": seen.get(h, {"distinctUsers": 0}).get("distinctUsers", 0)}
@@ -237,67 +469,147 @@ def fetch_most_active_hours(period: str = "all", license_key: Optional[str] = No
 
 def fetch_top_car_diagnoses(license_key: Optional[str] = None,
                             date_range: Optional[str] = None) -> Dict[str, List[Dict[str, Any]]]:
+    url = f"{EXT_API_BASE}/admin/dashboard/get-top-car-diagnoses"
+    params: Dict[str, Any] = {}
+    if license_key: params["licenseKey"] = license_key
+    if date_range: params["dateRange"] = date_range
+    j = _authed_get_json(url, params=params, ttl_seconds=60)
+    payload = j.get("payload") or {}
+    makes = payload.get("top5Makes") or []
+    models = payload.get("top5Models") or []
+    makes = [{"make": m.get("make") or "—", "count": int(m.get("count") or 0)} for m in makes]
+    models = [{"model": m.get("model") or "—", "count": int(m.get("count") or 0)} for m in models]
+    return {"top5Makes": makes, "top5Models": models}
+
+
+def fetch_related_parts_click_rate(granularity: str = "daily",
+                                   license_key: Optional[str] = None) -> List[Dict[str, Any]]:
+    url = f"{EXT_API_BASE}/admin/dashboard/get-related-parts-click-rate"
+    params: Dict[str, Any] = {"granularity": granularity}
+    if license_key: params["licenseKey"] = license_key
+    j = _authed_get_json(url, params=params, ttl_seconds=30)
+    payload = j.get("payload") or []
+    for p in payload:
+        if "clickRate" in p and p["clickRate"] is not None:
+            try: p["clickRate"] = float(p["clickRate"])
+            except Exception: p["clickRate"] = 0.0
+    return payload
+
+
+def fetch_parts_stats(license_key: Optional[str] = None) -> List[Dict[str, Any]]:
+    url = f"{EXT_API_BASE}/admin/dashboard/get-parts-stats"
+    params: Dict[str, Any] = {"licenseKey": license_key} if license_key else None
+    j = _authed_get_json(url, params=params, ttl_seconds=60)
+    payload = j.get("payload") or []
+    return [{"label": p.get("label") or "—", "count": int(p.get("count") or 0)} for p in payload]
+
+
+# --- add near your other imports if not present ---
+import re
+
+# --- NEW: Avg steps per diagnosis ---
+def fetch_avg_steps_per_diagnosis(
+    period: str = "daily",
+    license_key: Optional[str] = None
+) -> List[Dict[str, Any]]:
     """
-    GET /api/admin/dashboard/get-top-car-diagnoses(?licenseKey=...&dateRange=7d|1m|1y)
+    GET /admin/dashboard/get-avg-steps-per-diagnosis?period=daily|hourly[&licenseKey=...]
+    Returns a list like: [{"date":"YYYY-MM-DD","avgStepsPerDiagnosis":2.86}, ...]
+    We coerce avgStepsPerDiagnosis -> float defensively.
+    """
+    url = f"{EXT_API_BASE}/admin/dashboard/get-avg-steps-per-diagnosis"
+    params: Dict[str, Any] = {"period": period}
+    if license_key:
+        params["licenseKey"] = license_key
+
+    j = _authed_get_json(url, params=params, ttl_seconds=30)
+    payload = j.get("payload") or []
+    for p in payload:
+        try:
+            p["avgStepsPerDiagnosis"] = float(p.get("avgStepsPerDiagnosis") or 0.0)
+        except Exception:
+            p["avgStepsPerDiagnosis"] = 0.0
+    return payload
+
+
+# --- NEW: Avg diagnosis time (minutes) ---
+def fetch_avg_diagnosis_time(
+    period: str = "daily",
+    license_key: Optional[str] = None
+) -> List[Dict[str, Any]]:
+    """
+    GET /admin/dashboard/get-avg-diagnosis-time?period=daily|hourly[&licenseKey=...]
+    API returns avgDiagnosisTimeMinutes as a string like "3.42 Minutes".
+    We keep the original field and also add a numeric 'minutes' for charting.
+    """
+    url = f"{EXT_API_BASE}/admin/dashboard/get-avg-diagnosis-time"
+    params: Dict[str, Any] = {"period": period}
+    if license_key:
+        params["licenseKey"] = license_key
+
+    j = _authed_get_json(url, params=params, ttl_seconds=30)
+    payload = j.get("payload") or []
+
+    for p in payload:
+        raw = p.get("avgDiagnosisTimeMinutes", "")
+        # extract leading float, e.g., "3.42 Minutes" -> 3.42
+        try:
+            m = re.search(r"[-+]?\d*\.?\d+", str(raw) or "")
+            minutes = float(m.group(0)) if m else 0.0
+        except Exception:
+            minutes = 0.0
+        p["minutes"] = minutes
+    return payload
+
+
+# --- NEW: DIY trend ---
+def fetch_diy_trend(period: str = "daily", license_key: Optional[str] = None) -> List[Dict[str, Any]]:
+    """
+    GET /admin/dashboard/get-diy-trend?period=daily|hourly[&licenseKey=...]
+    Returns a list of points with {totalUsers, engagedUsers, clickRate, date|hour|_id}
+    """
+    url = f"{EXT_API_BASE}/admin/dashboard/get-diy-trend"
+    params: Dict[str, Any] = {"period": period}
+    if license_key:
+        params["licenseKey"] = license_key
+    j = _authed_get_json(url, params=params, ttl_seconds=30)
+    payload = j.get("payload") or []
+    # normalize numerics defensively
+    out = []
+    for p in payload:
+        out.append({
+            "date": p.get("date"),
+            "hour": p.get("hour"),
+            "_id": p.get("_id"),
+            "totalUsers": int(p.get("totalUsers") or 0),
+            "engagedUsers": int(p.get("engagedUsers") or 0),
+            "clickRate": float(p.get("clickRate") or 0),
+        })
+    return out
+
+
+# --- NEW: Top problem reasons ---
+def fetch_top_problem_reasons(license_key: Optional[str] = None,
+                              date_range: Optional[str] = None) -> Dict[str, List[Dict[str, Any]]]:
+    """
+    GET /admin/dashboard/get-top-problem-reasons[?dateRange=7d|1m|1y&licenseKey=...]
     Returns:
     {
-      "top5Makes": [{"make":"AUDI","count":2}, ...],
-      "top5Models":[{"model":"A3 ...","count":2}, ...]
+      "highPriority": [{"title":"..","count":n}, ...],
+      "lowPriority": [{"title":"..","count":n}, ...]
     }
     """
-    url = f"{EXT_API_BASE}/admin/dashboard/get-top-car-diagnoses"
+    url = f"{EXT_API_BASE}/admin/dashboard/get-top-problem-reasons"
     params: Dict[str, Any] = {}
     if license_key:
         params["licenseKey"] = license_key
     if date_range:
         params["dateRange"] = date_range
-    r = _authed_get(url, params=params)
-    j = r.json() or {}
+    j = _authed_get_json(url, params=params, ttl_seconds=60)
     payload = j.get("payload") or {}
-    makes = payload.get("top5Makes") or []
-    models = payload.get("top5Models") or []
-    # Normalize integers
-    makes = [{"make": m.get("make") or "—", "count": int(
-        m.get("count") or 0)} for m in makes]
-    models = [{"model": m.get("model") or "—", "count": int(
-        m.get("count") or 0)} for m in models]
-    return {"top5Makes": makes, "top5Models": models}
-
-
-# -------- FIXED FETCHERS --------
-def fetch_related_parts_click_rate(granularity: str = "daily",
-                                   license_key: Optional[str] = None) -> List[Dict[str, Any]]:
-    """
-    GET /admin/dashboard/get-related-parts-click-rate?granularity=hourly|daily|weekly[&licenseKey=...]
-    Returns a list of points; we keep API fields as-is.
-    """
-    url = f"{EXT_API_BASE}/admin/dashboard/get-related-parts-click-rate"  # <-- removed extra /api
-    params: Dict[str, Any] = {"granularity": granularity}
-    if license_key:
-        params["licenseKey"] = license_key
-    r = _authed_get(url, params=params)
-    j = r.json() or {}
-    payload = j.get("payload") or []
-    # normalize numerics defensively
-    for p in payload:
-        if "clickRate" in p and p["clickRate"] is not None:
-            try:
-                p["clickRate"] = float(p["clickRate"])
-            except Exception:
-                p["clickRate"] = 0.0
-    return payload
-
-def fetch_parts_stats(license_key: Optional[str] = None) -> List[Dict[str, Any]]:
-    """
-    GET /admin/dashboard/get-parts-stats[?licenseKey=...]
-    Returns [{"label":"Verified Parts","count":n}, {"label":"Rejected Parts","count":m}]
-    """
-    url = f"{EXT_API_BASE}/admin/dashboard/get-parts-stats"  # <-- removed extra /api
-    params: Dict[str, Any] = {}
-    if license_key:
-        params["licenseKey"] = license_key
-    r = _authed_get(url, params=params)
-    j = r.json() or {}
-    payload = j.get("payload") or []
-    # ensure count is int
-    return [{"label": p.get("label") or "—", "count": int(p.get("count") or 0)} for p in payload]
+    high = payload.get("highPriority") or []
+    low  = payload.get("lowPriority") or []
+    # normalize
+    high = [{"title": x.get("title") or "—", "count": int(x.get("count") or 0)} for x in high]
+    low  = [{"title": x.get("title") or "—", "count": int(x.get("count") or 0)} for x in low]
+    return {"highPriority": high, "lowPriority": low}
