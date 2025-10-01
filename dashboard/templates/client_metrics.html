@@ -271,6 +271,7 @@
       family:
         "Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
     },
+    hoverlabel: { namelength: -1 }, // 👈 show full trace names in hover
   };
 
   function unwrap(data) {
@@ -311,13 +312,7 @@
 
   function renderUserGrowth(data) {
     const s = toSeries(data);
-    renderLine(
-      "lott-user-growth",
-      s.months,
-      s.totals,
-      MC_PRIMARY_LIGHT,
-      "Users"
-    );
+    renderLine("lott-user-growth", s.months, s.totals, MC_PRIMARY, "Users");
   }
   function renderVerifications(data) {
     const s = toSeries(data);
@@ -345,7 +340,7 @@
       "lott-chat-threads",
       s.months,
       s.totals,
-      MC_PRIMARY_LIGHT,
+      MC_PRIMARY,
       "Chat Threads"
     );
   }
@@ -360,14 +355,14 @@
           y: arr.map((p) => p.distinctUsers),
           type: "bar",
           name: "Distinct Users",
-          marker: { color: MC_PRIMARY_LIGHT },
+          marker: { color: MC_PRIMARY },
         },
         {
           x: arr.map((p) => p.dayOfWeek),
           y: arr.map((p) => p.totalConversations),
           type: "bar",
           name: "Total Conversations",
-          marker: { color: MC_PRIMARY },
+          marker: { color: MC_PRIMARY_LIGHT },
         },
       ],
       {
@@ -450,16 +445,29 @@
   }
 
   function renderMostActiveHours(data) {
-    const perHour =
-      data && data.perHour
-        ? data.perHour
-        : Array.from({ length: 24 }, (_, h) => ({ hour: h, distinctUsers: 0 }));
+    const period = (data && data.period) || "all";
+    const perHour = data && data.perHour ? data.perHour : [];
+
+    // badge
     const totalEl = document.getElementById("mah-total");
     if (totalEl)
       totalEl.textContent =
         data && typeof data.totalDistinctUsers === "number"
           ? data.totalDistinctUsers
           : 0;
+
+    // axis label + range based on period
+    let xTitle = "Hour of Day (0–23)";
+    let xRange = [0, 23];
+    if (period === "am") {
+      xTitle = "Hour of Day (0–11)";
+      xRange = [0, 11];
+    }
+    if (period === "pm") {
+      xTitle = "Hour of Day (12–23)";
+      xRange = [12, 23];
+    }
+
     Plotly.react(
       "most-active-hours",
       [
@@ -475,7 +483,7 @@
       {
         ...baseLayout,
         height: 360,
-        xaxis: { title: "Hour of Day (0–23)", dtick: 1 },
+        xaxis: { title: xTitle, dtick: 1, range: xRange }, // 👈 dynamic axis
         yaxis: { title: "Distinct Users", rangemode: "tozero" },
       },
       { displayModeBar: false, responsive: true }
@@ -494,16 +502,19 @@
           type: "bar",
           orientation: "h",
           marker: { color: MC_PRIMARY },
+          hovertemplate: "%{y}: %{x}<extra></extra>",
         },
       ],
       {
         ...baseLayout,
         height: 240,
+        margin: { l: 150, r: 20, t: 20, b: 40 },
         yaxis: { autorange: "reversed" },
         xaxis: { title: "Count", rangemode: "tozero" },
       },
       { displayModeBar: false, responsive: true }
     );
+
     Plotly.react(
       "top-models",
       [
@@ -512,12 +523,14 @@
           y: models.map((m) => m.model),
           type: "bar",
           orientation: "h",
-          marker: { color: MC_PRIMARY_LIGHT },
+          marker: { color: MC_PRIMARY },
+          hovertemplate: "%{y}: %{x}<extra></extra>",
         },
       ],
       {
         ...baseLayout,
         height: 260,
+        margin: { l: 180, r: 20, t: 20, b: 40 },
         yaxis: { autorange: "reversed" },
         xaxis: { title: "Count", rangemode: "tozero" },
       },
@@ -585,6 +598,11 @@
         ? p.avgStepsPerDiagnosis
         : parseFloat(p.avgStepsPerDiagnosis) || 0
     );
+
+    // Infer period (hourly points usually include a space + hour)
+    const isHourly = x.some((v) => typeof v === "string" && v.includes(" "));
+    const xTitle = isHourly ? "Hour" : "Date";
+
     Plotly.react(
       "avg-steps-per-diagnosis",
       [
@@ -593,7 +611,7 @@
           y,
           type: "scatter",
           mode: "lines+markers",
-          line: { color: MC_PRIMARY_LIGHT, shape: "spline" },
+          line: { color: MC_PRIMARY, shape: "spline" },
           marker: { size: 6 },
           hovertemplate: "Avg steps: %{y:.2f}<extra></extra>",
         },
@@ -601,7 +619,7 @@
       {
         ...baseLayout,
         height: 360,
-        xaxis: { title: "Period" },
+        xaxis: { title: xTitle },
         yaxis: { title: "Avg Steps", rangemode: "tozero" },
       },
       { displayModeBar: false, responsive: true }
@@ -674,26 +692,41 @@
     );
   }
 
-  // --- NEW: Top Problem Reasons (two horizontal bars) ---
+  // helper: compute a sensible left margin from the longest label
+  function leftMarginForLabels(labels) {
+    const longest = labels.reduce((m, s) => Math.max(m, (s || "").length), 0);
+    // ~7px per character + a base pad; cap so it doesn't get silly
+    return Math.min(320, 60 + longest * 7);
+  }
+
+  // --- Top Problem Reasons (horizontal bars, no cutoff) ---
   function renderTopProblemReasons(data) {
     const high = (data && data.highPriority) || [];
     const low = (data && data.lowPriority) || [];
+
+    const highLabels = high.map((d) => d.title || "—");
+    const lowLabels = low.map((d) => d.title || "—");
+
+    const leftHigh = leftMarginForLabels(highLabels);
+    const leftLow = leftMarginForLabels(lowLabels);
 
     Plotly.react(
       "top-problems-high",
       [
         {
           x: high.map((d) => d.count),
-          y: high.map((d) => d.title),
+          y: highLabels,
           type: "bar",
           orientation: "h",
           marker: { color: MC_PRIMARY },
+          hovertemplate: "%{y}: %{x}<extra></extra>",
         },
       ],
       {
         ...baseLayout,
-        height: 240,
-        yaxis: { autorange: "reversed" },
+        height: 260,
+        margin: { l: leftHigh, r: 20, t: 20, b: 40 },
+        yaxis: { autorange: "reversed", automargin: true }, // ← prevent clipping
         xaxis: { title: "Count", rangemode: "tozero" },
       },
       { displayModeBar: false, responsive: true }
@@ -704,16 +737,18 @@
       [
         {
           x: low.map((d) => d.count),
-          y: low.map((d) => d.title),
+          y: lowLabels,
           type: "bar",
           orientation: "h",
           marker: { color: MC_PRIMARY_LIGHT },
+          hovertemplate: "%{y}: %{x}<extra></extra>",
         },
       ],
       {
         ...baseLayout,
         height: 260,
-        yaxis: { autorange: "reversed" },
+        margin: { l: leftLow, r: 20, t: 20, b: 40 },
+        yaxis: { autorange: "reversed", automargin: true }, // ← prevent clipping
         xaxis: { title: "Count", rangemode: "tozero" },
       },
       { displayModeBar: false, responsive: true }
@@ -811,15 +846,20 @@
   function buildQS() {
     const qs = new URLSearchParams();
     const periodMAD = document.getElementById("mad-period")?.value || "all";
-    const periodMAH =
-      document.getElementById("mah-period")?.value || periodMAD || "all";
+    const periodMAH = document.getElementById("mah-period")?.value || "all";
     const dateRange = document.getElementById("topcars-range")?.value || "";
     const gran = document.getElementById("rpcr-granularity")?.value || "daily";
-    const diyP = document.getElementById("diy-period")?.value || "daily"; // NEW
-    if (periodMAH) qs.set("period", periodMAH);
+    const diyP = document.getElementById("diy-period")?.value || "daily";
+    const diagP = document.getElementById("diag-period")?.value || "daily"; // 👈 add this
+
+    // 🔥 send both separately with different keys
+    if (periodMAD) qs.set("periodDays", periodMAD); // <-- for most_active_days
+    if (periodMAH) qs.set("periodHours", periodMAH); // <-- for most_active_hours
     if (dateRange) qs.set("dateRange", dateRange);
     if (gran) qs.set("granularity", gran);
-    if (diyP) qs.set("diyPeriod", diyP); // NEW
+    if (diyP) qs.set("diyPeriod", diyP);
+    if (diagP) qs.set("diagPeriod", diagP);
+
     return qs.toString();
   }
   // Initial load

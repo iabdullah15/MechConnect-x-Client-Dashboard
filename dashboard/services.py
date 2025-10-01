@@ -214,9 +214,11 @@ def fetch_recent_activities(limit: int = 5, license_key: Optional[str] = None) -
 def fetch_most_active_days(period: str = "all", license_key: Optional[str] = None) -> List[Dict[str, Any]]:
     url = f"{EXT_API_BASE}/admin/dashboard/get-most-active-days"
     params: Dict[str, Any] = {"period": period}
+    print(f"Params: {params}")
     if license_key: params["licenseKey"] = license_key
     j = _authed_get_json(url, params=params, ttl_seconds=60)
     payload = j.get("payload") or []
+    print("Payload", payload)
     return [{
         "dayOfWeek": p.get("dayOfWeek"),
         "distinctUsers": int(p.get("distinctUsers") or 0),
@@ -224,10 +226,34 @@ def fetch_most_active_days(period: str = "all", license_key: Optional[str] = Non
     } for p in payload]
 
 
+# def fetch_most_active_hours(period: str = "all", license_key: Optional[str] = None) -> Dict[str, Any]:
+#     url = f"{EXT_API_BASE}/admin/dashboard/get-most-active-hours"
+#     params: Dict[str, Any] = {"period": period}
+#     if license_key: params["licenseKey"] = license_key
+#     j = _authed_get_json(url, params=params, ttl_seconds=60)
+#     payload = j.get("payload") or {}
+#     per_hour = payload.get("perHour") or []
+#     norm = {
+#         "period": payload.get("period") or period,
+#         "totalDistinctUsers": int(payload.get("totalDistinctUsers") or 0),
+#         "perHour": [
+#             {"hour": int(p.get("hour") or 0), "distinctUsers": int(p.get("distinctUsers") or 0)}
+#             for p in per_hour
+#         ]
+#     }
+#     if len(norm["perHour"]) < 24:
+#         seen = {ph["hour"]: ph for ph in norm["perHour"]}
+#         norm["perHour"] = [{"hour": h, "distinctUsers": seen.get(h, {"distinctUsers": 0}).get("distinctUsers", 0)}
+#                            for h in range(24)]
+#     return norm
+
+
+# services.py
 def fetch_most_active_hours(period: str = "all", license_key: Optional[str] = None) -> Dict[str, Any]:
     url = f"{EXT_API_BASE}/admin/dashboard/get-most-active-hours"
     params: Dict[str, Any] = {"period": period}
-    if license_key: params["licenseKey"] = license_key
+    if license_key:
+        params["licenseKey"] = license_key
     j = _authed_get_json(url, params=params, ttl_seconds=60)
     payload = j.get("payload") or {}
     per_hour = payload.get("perHour") or []
@@ -239,11 +265,17 @@ def fetch_most_active_hours(period: str = "all", license_key: Optional[str] = No
             for p in per_hour
         ]
     }
-    if len(norm["perHour"]) < 24:
+
+    # ✅ Only pad when 'all'. For am/pm, keep just the returned slice.
+    if norm["period"] == "all" and len(norm["perHour"]) < 24:
         seen = {ph["hour"]: ph for ph in norm["perHour"]}
-        norm["perHour"] = [{"hour": h, "distinctUsers": seen.get(h, {"distinctUsers": 0}).get("distinctUsers", 0)}
-                           for h in range(24)]
+        norm["perHour"] = [
+            {"hour": h, "distinctUsers": seen.get(h, {"distinctUsers": 0}).get("distinctUsers", 0)}
+            for h in range(24)
+        ]
+
     return norm
+
 
 
 def fetch_top_car_diagnoses(license_key: Optional[str] = None,

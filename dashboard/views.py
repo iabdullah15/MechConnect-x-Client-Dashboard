@@ -201,6 +201,9 @@ def api_client_metrics(request):
     granularity = request.GET.get("granularity", "daily")
     diag_period = request.GET.get("diagPeriod", "daily")
     diy_period  = request.GET.get("diyPeriod", "daily")   # <-- NEW
+        # read both
+    period_days  = request.GET.get("periodDays", "all")
+    period_hours = request.GET.get("periodHours", "all")
 
     from django.core.cache import cache
     def _cache_get(name, default): return cache.get(name, default)
@@ -235,10 +238,16 @@ def api_client_metrics(request):
     support = _safe(lambda: fetch_support_last5(license_key), k_support, [])
     threads = _safe(lambda: fetch_chat_threads_last5(license_key), k_threads, [])
     recents = _safe(lambda: fetch_recent_activities(license_key=license_key), k_recents, [])
-    weekdays= _safe(lambda: fetch_most_active_days(period=period, license_key=license_key), k_days, [])
-    hours   = _safe(lambda: fetch_most_active_hours(period=period, license_key=license_key), k_hours,
-                    {"period": "all", "totalDistinctUsers": 0,
-                     "perHour": [{"hour": h, "distinctUsers": 0} for h in range(24)]})
+    # weekdays= _safe(lambda: fetch_most_active_days(period=period, license_key=license_key), k_days, [])
+    # hours   = _safe(lambda: fetch_most_active_hours(period=period, license_key=license_key), k_hours,
+    #                 {"period": "all", "totalDistinctUsers": 0,
+    #                  "perHour": [{"hour": h, "distinctUsers": 0} for h in range(24)]})
+    weekdays = _safe(lambda: fetch_most_active_days(period=period_days,  license_key=license_key), k_days, [])
+    hours    = _safe(lambda: fetch_most_active_hours(period=period_hours, license_key=license_key), k_hours,
+                 {"period": "all", "totalDistinctUsers": 0,
+                  "perHour": [{"hour": h, "distinctUsers": 0} for h in range(24)]})
+    
+    
     topcars = _safe(lambda: fetch_top_car_diagnoses(license_key=license_key, date_range=date_range),
                     k_topcars, {"top5Makes": [], "top5Models": []})
     rp_click= _safe(lambda: fetch_related_parts_click_rate(granularity, license_key), k_rpcr, [])
