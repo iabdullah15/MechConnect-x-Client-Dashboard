@@ -1,30 +1,42 @@
-{# --- Master metrics UI --- #}
+{# --- Master metrics UI (ONLY: License Keys Overview + Recent Activities) ---
+#}
 <style>
   :root {
-    --mc-primary: #EC6936;
+    --mc-primary: #ec6936;
     --mc-gray: #e8e8e8;
     --mc-bg: #f5f5f5;
   }
-  body.bg-light { background-color: var(--mc-bg) !important; }
+  body.bg-light {
+    background-color: var(--mc-bg) !important;
+  }
 
   /* KPI banner */
   .kpi-banner {
     background: var(--mc-primary);
     color: #fff;
-    border-radius: .5rem;
+    border-radius: 0.5rem;
     padding: 1.25rem 1.25rem;
   }
-  .kpi-banner h1 { font-size: 2.75rem; margin: 0; }
+  .kpi-banner h1 {
+    font-size: 2.75rem;
+    margin: 0;
+  }
 
   /* Card look (white) */
-  .mc-card.card { background: #fff; }
+  .mc-card.card {
+    background: #fff;
+  }
 
   /* Keep Plotly on transparent bg to match cards */
-  .plot-card .card-body { padding: 1rem 1rem .5rem 1rem; }
+  .plot-card .card-body {
+    padding: 1rem 1rem 0.5rem 1rem;
+  }
 </style>
 
 <div class="kpi-banner mb-4">
-  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+  <div
+    class="d-flex justify-content-between align-items-center flex-wrap gap-2"
+  >
     <div>
       <h4 class="mb-1">Total Chats Initiated</h4>
       <h1 id="total-chats" class="fw-bold mb-0">0</h1>
@@ -35,7 +47,6 @@
   </div>
 </div>
 
-{# ====================== Authentication & License Key Health ====================== #}
 <h3 class="h5 mt-4 mb-3">Authentication &amp; License Key Health</h3>
 <div class="row g-3">
   <!-- LEFT: License Keys Overview (Donut) -->
@@ -45,7 +56,7 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h4 class="h6 mb-0">License Keys Overview</h4>
         </div>
-        <div id="license-keys-donut" style="height:360px;"></div>
+        <div id="license-keys-donut" style="height: 360px"></div>
         <div class="row text-center my-2">
           <div class="col">
             <div class="fw-semibold" id="lk-new">0</div>
@@ -64,42 +75,16 @@
     </div>
   </div>
 
-  <!-- RIGHT: License Key Failures (by type) -->
+  <!-- RIGHT: Recent Activities -->
   <div class="col-12 col-lg-6">
-    <div class="card mc-card shadow-sm plot-card">
+    <div class="card mc-card shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">License Key Failures (by Type)</h4>
+          <h4 class="h6 mb-0">Recent Activities</h4>
         </div>
-        <div id="license-failures-bar" style="height:360px;"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-{# ====================== Chat-Level Engagement ====================== #}
-<h3 class="h5 mt-4 mb-3">Chat-Level Engagement</h3>
-<div class="row g-3">
-  <!-- Avg. Chat Length (last 6 months, line) -->
-  <div class="col-12 col-lg-6">
-    <div class="card mc-card shadow-sm plot-card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Avg. Chat Length (# of Messages)</h4>
+        <div id="recent-activities">
+          <div class="text-muted fst-italic">Loading…</div>
         </div>
-        <div id="avg-chat-length-hist" style="height:360px;"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Chat Drop-Off Points (Funnel) -->
-  <div class="col-12 col-lg-6">
-    <div class="card mc-card shadow-sm plot-card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="h6 mb-0">Chat Drop-Off Points</h4>
-        </div>
-        <div id="chat-dropoff-funnel" style="height:360px;"></div>
       </div>
     </div>
   </div>
@@ -107,113 +92,77 @@
 
 <script>
   // ---- Shared palette & base layout ----
-  const MC_PRIMARY = '#EC6936';
-  const MC_PRIMARY_LIGHT = '#E8E8E8';
-  const MC_GRAY = '#E8E8E8';
+  const MC_PRIMARY = "#EC6936";
+  const MC_PRIMARY_LIGHT = "#E8E8E8";
+  const MC_GRAY = "#E8E8E8";
   const baseLayout = {
-    margin: {l: 40, r: 20, t: 20, b: 40},
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    font: {family: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif'}
+    margin: { l: 40, r: 20, t: 20, b: 40 },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font: {
+      family:
+        "Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
+    },
   };
 
-  // ---------------- Dummy data for charts ----------------
-  // License Failures by type (counts)
-  const licenseFailures = {
-    types: ['Invalid', 'Expired', 'Blocked', 'Rate Limited', 'Other'],
-    counts: [18, 9, 6, 12, 4]
-  };
-
-  // Avg. Chat Length (last 6 months)
-  const avgChatLength = {
-    months: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-    avg:    [9, 10, 8, 11, 12, 10]
-  };
-
-  // Drop-off funnel (example absolute numbers)
-  const dropoff = {
-    stages: ['Start Chat', 'After Greeting', 'After Diagnosis', 'After Parts Recommendation', 'Checkout'],
-    values: [1000, 820, 640, 420, 180]
-  };
-
-  // ---------------- Render STATIC charts ----------------
-  // License Key Failures (bar by type)
-  Plotly.newPlot('license-failures-bar', [{
-    x: licenseFailures.types,
-    y: licenseFailures.counts,
-    type: 'bar',
-    marker: { color: MC_PRIMARY }
-  }], {
-    ...baseLayout,
-    height: 360,
-    yaxis: { title: 'Failures' },
-    xaxis: { title: 'Type' }
-  }, {displayModeBar: false, responsive: true});
-
-  // Avg. Chat Length (Line over last 6 months)
-  Plotly.newPlot('avg-chat-length-hist', [{
-    x: avgChatLength.months,
-    y: avgChatLength.avg,
-    type: 'scatter',
-    mode: 'lines+markers',
-    line: { color: MC_PRIMARY, shape: 'spline' },
-    marker: { size: 6 }
-  }], {
-    ...baseLayout,
-    height: 360,
-    xaxis: { title: 'Month' },
-    yaxis: { title: 'Avg. Messages per Chat' }
-  }, {displayModeBar: false, responsive: true});
-
-  // Chat Drop-Off Points (Funnel)
-  Plotly.newPlot('chat-dropoff-funnel', [{
-    type: 'funnel',
-    y: dropoff.stages,
-    x: dropoff.values,
-    marker: { color: MC_PRIMARY }
-  }], {
-    ...baseLayout,
-    height: 360,
-    margin: { l: 120, r: 20, t: 20, b: 20 }
-  }, {displayModeBar: false, responsive: true});
-
-  // ================== License Keys Overview (Donut, dynamic via backend) ==================
   function renderLicenseKeysDonut(newVal, activeVal, inactiveVal) {
-    const labels = ['New License Keys', 'Active License Keys', 'Inactive License Keys'];
+    const el = document.getElementById("license-keys-donut");
+    if (!el) return;
+
+    const labels = [
+      "New License Keys",
+      "Active License Keys",
+      "Inactive License Keys",
+    ];
     const values = [newVal, activeVal, inactiveVal];
     const colors = [MC_PRIMARY_LIGHT, MC_PRIMARY, MC_GRAY];
     const total = newVal + activeVal + inactiveVal;
 
-    Plotly.newPlot('license-keys-donut', [{
-      type: 'pie',
-      hole: 0.55,
-      labels,
-      values,
-      marker: { colors },
-      textinfo: 'label+value',
-      hovertemplate: '%{label}: %{value}<extra></extra>',
-      sort: false
-    }], {
-      ...baseLayout,
-      height: 360,
-      showlegend: true,
-      annotations: [{
-        text: total.toString(),
-        font: { size: 20, color: '#111' },
-        showarrow: false,
-        x: 0.5, y: 0.5
-      }]
-    }, {displayModeBar: false, responsive: true});
+    Plotly.newPlot(
+      el,
+      [
+        {
+          type: "pie",
+          hole: 0.55,
+          labels,
+          values,
+          marker: { colors },
+          textinfo: "label+value",
+          textposition: "outside", // 🔥 move labels outside
+          outsidetextfont: { size: 14, color: "#333" }, // bigger + clearer
+          hovertemplate: "%{label}: %{value}<extra></extra>",
+          sort: false,
+        },
+      ],
+      {
+        ...baseLayout,
+        height: 360,
+        margin: { l: 60, r: 60, t: 40, b: 40 }, // give extra room for outside labels
+        showlegend: true,
+        annotations: [
+          {
+            text: total.toString(),
+            font: { size: 28, color: "#111", family: "Inter, sans-serif" }, // 🔥 bigger center number
+            showarrow: false,
+            x: 0.5,
+            y: 0.5,
+          },
+        ],
+      },
+      { displayModeBar: false, responsive: true }
+    );
 
-    // Update small counters
-    document.getElementById('lk-new').textContent = newVal;
-    document.getElementById('lk-active').textContent = activeVal;
-    document.getElementById('lk-inactive').textContent = inactiveVal;
+    // Update counters
+    document.getElementById("lk-new").textContent = newVal;
+    document.getElementById("lk-active").textContent = activeVal;
+    document.getElementById("lk-inactive").textContent = inactiveVal;
   }
 
   async function loadLicenseKeysSummary() {
     try {
-      const res = await fetch("{% url 'api_license_keys_summary' %}", { credentials: 'same-origin' });
+      const res = await fetch("{% url 'api_license_keys_summary' %}", {
+        credentials: "same-origin",
+      });
       const j = await res.json();
       if (j.ok && j.data) {
         const { new: n, active: a, inactive: i } = j.data;
@@ -221,12 +170,97 @@
       } else {
         renderLicenseKeysDonut(0, 0, 0);
       }
-    } catch (e) {
+    } catch {
       renderLicenseKeysDonut(0, 0, 0);
     }
   }
 
-  // Initial load (enable interval if you want auto-refresh)
+  // ----- helpers (from client) -----
+  function safe(obj, path, fallback = "") {
+    try {
+      return (
+        path
+          .split(".")
+          .reduce(
+            (o, k) => (o && o[k] !== undefined ? o[k] : undefined),
+            obj
+          ) ?? fallback
+      );
+    } catch {
+      return fallback;
+    }
+  }
+  function formatDate(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? "" : d.toLocaleString();
+  }
+  function badgeForType(t) {
+    t = (t || "").toLowerCase();
+    if (t.includes("chat")) return "primary";
+    if (t.includes("support")) return "warning";
+    if (t.includes("license")) return "success";
+    if (t.includes("carpart")) return "info";
+    return "secondary";
+  }
+
+  // ----- Recent Activities renderer -----
+  function renderRecentActivities(list) {
+    const wrap = document.getElementById("recent-activities");
+    if (!wrap) return;
+
+    const arr = Array.isArray(list) ? list : list?.payload ?? list ?? [];
+    wrap.innerHTML = "";
+    if (!arr.length) {
+      wrap.innerHTML =
+        '<div class="text-muted fst-italic">No recent activity.</div>';
+      return;
+    }
+    arr.forEach((item) => {
+      const el = document.createElement("div");
+      el.className = "activity-item py-2";
+      el.innerHTML = `
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <span class="badge bg-${badgeForType(item.type)} badge-type me-2">${
+        item.type || "Activity"
+      }</span>
+            <span class="fw-semibold">${item.message || ""}</span>
+          </div>
+          ${
+            safe(item, "data.licenseKey.name", "")
+              ? `<span class="text-muted small">Key: ${safe(
+                  item,
+                  "data.licenseKey.name",
+                  ""
+                )}</span>`
+              : ""
+          }
+        </div>
+        <div class="text-muted small mt-1">${formatDate(
+          safe(item, "data.createdAt", "") || safe(item, "createdAt", "")
+        )}</div>`;
+      wrap.appendChild(el);
+    });
+  }
+
+  // ----- loader for master API -----
+  async function loadMasterRecentActivities(limit = 10) {
+    try {
+      const res = await fetch(
+        "{% url 'api_master_recent_activities' %}?limit=" + limit,
+        { credentials: "same-origin" }
+      );
+      const j = await res.json();
+      if (j.ok) renderRecentActivities(j.data);
+      else renderRecentActivities([]);
+    } catch {
+      renderRecentActivities([]);
+    }
+  }
+
+  // Initial loads
   loadLicenseKeysSummary();
+  loadMasterRecentActivities(10);
   // setInterval(loadLicenseKeysSummary, 90000);
 </script>

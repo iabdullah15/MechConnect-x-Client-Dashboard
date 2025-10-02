@@ -113,70 +113,22 @@ def api_license_keys_summary(request):
     except Exception as e:
         # Keep it simple; return zeros on error
         return JsonResponse({"ok": False, "error": str(e), "data": {"new": 0, "active": 0, "inactive": 0, "total": 0}}, status=200)
+    
 
+@login_required
+def api_master_recent_activities(request):
+    # Only MASTER (or superuser) can see master metrics API
+    if not request.user.is_master():
+        return HttpResponseForbidden("Forbidden")
 
-# @login_required
-# def api_client_metrics(request):
-#     """
-#     Org-agnostic v1; supports optional:
-#       ?licenseKey=...
-#       ?period=all|am|pm
-#       ?dateRange=7d|1m|1y
-#       ?granularity=hourly|daily|weekly
-#     """
-#     license_key = request.GET.get("licenseKey") or None
-#     period      = request.GET.get("period", "all")
-#     date_range  = request.GET.get("dateRange") or None
-#     granularity = request.GET.get("granularity", "daily")
+    limit = int(request.GET.get("limit", 10))
+    license_key = request.GET.get("licenseKey") or None  # optional filter, if you want to scope
 
-#     try:
-#         users     = fetch_lott_users_last5()
-#         verifs    = fetch_lott_verifications_last5(license_key=license_key)
-#         support   = fetch_support_last5(license_key=license_key)
-#         threads   = fetch_chat_threads_last5(license_key=license_key)
-#         recents   = fetch_recent_activities(license_key=license_key)
-#         weekdays  = fetch_most_active_days(period=period, license_key=license_key)
-#         hours     = fetch_most_active_hours(period=period, license_key=license_key)
-#         topcars   = fetch_top_car_diagnoses(license_key=license_key, date_range=date_range)
-#         rp_click  = fetch_related_parts_click_rate(granularity, license_key)
-#         parts     = fetch_parts_stats(license_key)
-
-#         return JsonResponse({
-#             "ok": True,
-#             "data": {
-#                 "user_chart": users,
-#                 "verify_chart": verifs,
-#                 "support_chart": support,
-#                 "chat_thread_chart": threads,
-#                 "recent_activities": recents,
-#                 "most_active_days": weekdays,
-#                 "most_active_hours": hours,
-#                 "top_car_diagnoses": topcars,
-#                 "related_parts_click_rate": rp_click,
-#                 "parts_stats": parts,
-#             }
-#         })
-#     except Exception as e:
-#         return JsonResponse({
-#             "ok": False,
-#             "error": str(e),
-#             "data": {
-#                 "user_chart": [],
-#                 "verify_chart": [],
-#                 "support_chart": [],
-#                 "chat_thread_chart": [],
-#                 "recent_activities": [],
-#                 "most_active_days": [],
-#                 "most_active_hours": {
-#                     "period": "all",
-#                     "totalDistinctUsers": 0,
-#                     "perHour": [{"hour": h, "distinctUsers": 0} for h in range(24)]
-#                 },
-#                 "top_car_diagnoses": {"top5Makes": [], "top5Models": []},
-#                 "related_parts_click_rate": [],
-#                 "parts_stats": [],
-#             }
-#         }, status=200)
+    try:
+        acts = fetch_recent_activities(limit=limit, license_key=license_key)  # license_key None => global
+        return JsonResponse({"ok": True, "data": acts})
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": str(e), "data": []}, status=200)
 
 
 def _cache_get(name, default):

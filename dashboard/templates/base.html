@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -79,37 +80,55 @@
     ></script>
   </head>
   <body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container">
-        <!-- Brand always goes to Home -->
-        <a class="navbar-brand" href="{% url 'home' %}">Home</a>
+    <nav class="navbar navbar-light bg-white border-bottom">
+      <div class="container d-flex align-items-center">
+        <!-- Left: Logo -->
+        <a class="navbar-brand me-3" href="{% url 'home' %}">
+          <img
+            src="https://mechconnect.de/logo.svg"
+            alt="MechConnect"
+            height="28"
+          />
+        </a>
 
-        <div class="d-flex align-items-center">
-          {% if user.is_authenticated %}
-          <!-- Show Dashboard shortcut as well -->
-          {% if user.is_master %}
-          <a
-            class="btn btn-outline-light btn-sm me-3"
-            href="{% url 'master_dashboard' %}"
-            >Master Dashboard</a
-          >
+        <!-- Center: Home + Dashboard -->
+        <ul class="nav mx-auto">
+          <li class="nav-item">
+            <a class="nav-link fw-semibold text-dark" href="{% url 'home' %}">Home</a>
+          </li>
+
+          {% if user.is_authenticated %} {% if user.is_master %}
+          <li class="nav-item">
+            <a class="nav-link text-dark" href="{% url 'master_dashboard' %}"
+              >Master Dashboard</a
+            >
+          </li>
           {% elif user.organization %}
-          <a
-            class="btn btn-outline-light btn-sm me-3"
-            href="{% url 'client_dashboard' org_slug=user.organization.slug %}"
-            >My Dashboard</a
-          >
-          {% endif %}
+          <li class="nav-item">
+            <a
+              class="nav-link text-dark"
+              href="{% url 'client_dashboard' org_slug=user.organization.slug %}"
+            >
+              My Dashboard
+            </a>
+          </li>
+          {% endif %} {% endif %}
+        </ul>
 
-          <span class="navbar-text me-3">{{ user.username }}</span>
-          <form action="{% url 'logout' %}" method="post" class="d-inline">
+        <!-- Right: Role + Logout (or Login) -->
+        <div class="d-flex align-items-center ms-auto">
+          {% if user.is_authenticated %}
+          <span class="badge text-bg-light text-dark me-2"
+            >{{ user.username }}</span
+          >
+          <form action="{% url 'logout' %}" method="post" class="mb-0">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-light btn-sm">
+            <button type="submit" class="btn btn-outline-dark btn-sm">
               Logout
             </button>
           </form>
           {% else %}
-          <a class="btn btn-outline-light btn-sm" href="{% url 'login' %}"
+          <a class="btn btn-outline-dark btn-sm" href="{% url 'login' %}"
             >Login</a
           >
           {% endif %}
