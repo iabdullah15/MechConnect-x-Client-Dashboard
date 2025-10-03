@@ -27,6 +27,21 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.onrender.com",
+]
+
+# If you're behind Render's proxy (you are), keep HTTPS info:
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Good practice in production:
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+CORS_ALLOWED_ORIGINS = [
+    "https://*.onrender.com",
+]
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
